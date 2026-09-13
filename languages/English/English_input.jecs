@@ -1,13 +1,8 @@
 MHG.SettingsMenu.Pages.Controls.Headings.EVE_Components: "Mod: Eve's Components"
 
-FancyInput.Trigger.EVE_Components.EditProgram: "Edit RAM"
+FancyInput.Trigger.EVE_Components.EditProgram: "Edit ROM"
 FancyInput.Trigger.EVE_Components.EditProgram.Description: """
-    Opens the editor for the RAM block you are looking at.
-    """
-
-FancyInput.Trigger.EVE_Components.EditMicrocode: "Edit Microcode"
-FancyInput.Trigger.EVE_Components.EditMicrocode.Description: """
-    Opens the editor for the Microcode ROM block you are looking at.
+    Opens the editor for the RAM or Microcode ROM block you are looking at.
     """
 
 EVE_Components.EditorTitle: "RAM Editor"

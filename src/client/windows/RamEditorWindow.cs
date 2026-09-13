@@ -237,7 +237,7 @@ namespace EVE.Components.Client.Windows
     {
         private void Update()
         {
-            if (RamTrigger.EditProgram.DownThisFrame() || RamTrigger.EditMicrocode.DownThisFrame() || UITrigger.Back.DownThisFrame())
+            if (RamTrigger.EditProgram.DownThisFrame() || UITrigger.Back.DownThisFrame())
             {
                 RamEditorWindow.HideMenu();
             }

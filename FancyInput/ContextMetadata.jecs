@@ -3,9 +3,3 @@ EVE_Components.ProgramRAM:
     - MHG.BuildActions
   Triggers:
     - EVE_Components.EditProgram
-
-EVE_Components.MicrocodeROM:
-  InjectTriggersInto:
-    - MHG.BuildActions
-  Triggers:
-    - EVE_Components.EditMicrocode
