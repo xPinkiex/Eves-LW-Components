@@ -10,15 +10,11 @@ namespace EVE.Components.Server
         private byte[] _originalData = new byte[0];
 
         private bool _prevWriteEnable;
-        private bool _prevSave;
-        private bool _prevRestore;
 
-        public const int InputCount = 51;
-        public const int AddrBase = 0;       // address bits 15-0
-        public const int WEIndex = 16;       // write enable
-        public const int SaveIndex = 17;     // save trigger
-        public const int RestoreIndex = 18;  // restore trigger
-        public const int DataInBase = 19;    // write data bits 31-0
+        public const int InputCount = 49;
+        public const int WEIndex = 0;        // write enable
+        public const int AddrBase = 1;       // address bits 15-0
+        public const int DataInBase = 17;    // write data bits 31-0
 
         public override bool HasPersistentValues => true;
 
@@ -26,6 +22,17 @@ namespace EVE.Components.Server
         {
             _romData = data ?? new byte[0];
             _originalData = (byte[])_romData.Clone();
+            QueueLogicUpdate();
+        }
+
+        public void Save()
+        {
+            RamServer.RequestPersistence(this);
+        }
+
+        public void Restore()
+        {
+            _romData = (byte[])_originalData.Clone();
             QueueLogicUpdate();
         }
 
@@ -61,21 +68,6 @@ namespace EVE.Components.Server
                 WriteDword(byteOffset, dataIn);
             }
             _prevWriteEnable = writeEnable;
-
-            bool save = base.Inputs[SaveIndex].On;
-            if (save && !_prevSave)
-            {
-                RamServer.RequestPersistence(this);
-            }
-            _prevSave = save;
-
-            bool restore = base.Inputs[RestoreIndex].On;
-            if (restore && !_prevRestore)
-            {
-                _romData = (byte[])_originalData.Clone();
-                QueueLogicUpdate();
-            }
-            _prevRestore = restore;
 
             uint value = 0;
             if (byteOffset + 3 < _romData.Length)

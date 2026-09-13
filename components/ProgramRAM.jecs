@@ -118,16 +118,6 @@ ProgramRAM:
                 position: (4, 1.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
-            # Input 25: Save trigger (rising edge persists RAM contents to world data)
-            -
-                position: (1, 1.5, -0.5)
-                rotation: (-90, 0, 0)
-                length: 0.6
-            # Input 26: Restore trigger (rising edge reverts RAM to originally-loaded program)
-            -
-                position: (2, 1.5, -0.5)
-                rotation: (-90, 0, 0)
-                length: 0.6
         outputs:
             # Data bits 0-7, front face, MSB on left
             # Peg index 0 (bit 0, LSB) at x=11 (rightmost)

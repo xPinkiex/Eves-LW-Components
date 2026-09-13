@@ -72,6 +72,16 @@ namespace EVE.Components.Client.Windows
                     .setLocalizationKey("EVE_Components.Clear")
                     .add<ButtonLayout>()
                     .injectionKey(nameof(clearButton))
+                )
+                .add(WS.button
+                    .setLocalizationKey("EVE_Components.Save")
+                    .add<ButtonLayout>()
+                    .injectionKey(nameof(saveButton))
+                )
+                .add(WS.button
+                    .setLocalizationKey("EVE_Components.Restore")
+                    .add<ButtonLayout>()
+                    .injectionKey(nameof(restoreButton))
                 );
 
             window.add<RamEditorWindow>()
@@ -126,6 +136,12 @@ namespace EVE.Components.Client.Windows
         [AssignMe]
         public HoverButton clearButton;
 
+        [AssignMe]
+        public HoverButton saveButton;
+
+        [AssignMe]
+        public HoverButton restoreButton;
+
         public override void Initialize()
         {
             base.Initialize();
@@ -134,6 +150,10 @@ namespace EVE.Components.Client.Windows
             applyButton.OnClickEnd += OnApply;
             clearButton.OnClickEnd -= OnClear;
             clearButton.OnClickEnd += OnClear;
+            saveButton.OnClickEnd -= OnSave;
+            saveButton.OnClickEnd += OnSave;
+            restoreButton.OnClickEnd -= OnRestore;
+            restoreButton.OnClickEnd += OnRestore;
         }
 
         private void OnApply()
@@ -181,13 +201,43 @@ namespace EVE.Components.Client.Windows
                 RomData = new byte[0],
             });
         }
+
+        private void OnSave()
+        {
+            if (statusLabel != null)
+            {
+                statusLabel.text = "Saved to world data";
+            }
+
+            Instances.SendData.Send(new RomActionPacket()
+            {
+                ComponentAddress = _targetAddress,
+                Action = RomActionType.Save,
+            });
+        }
+
+        private void OnRestore()
+        {
+            if (statusLabel != null)
+            {
+                statusLabel.text = "Restored from original";
+            }
+
+            Instances.SendData.Send(new RomActionPacket()
+            {
+                ComponentAddress = _targetAddress,
+                Action = RomActionType.Restore,
+            });
+
+            PreFillFromRom(_targetAddress);
+        }
     }
 
     public class CloseWindowOnKey : MonoBehaviour
     {
         private void Update()
         {
-            if (RamTrigger.EditProgram.DownThisFrame() || UITrigger.Back.DownThisFrame())
+            if (RamTrigger.EditProgram.DownThisFrame() || RamTrigger.EditMicrocode.DownThisFrame() || UITrigger.Back.DownThisFrame())
             {
                 RamEditorWindow.HideMenu();
             }

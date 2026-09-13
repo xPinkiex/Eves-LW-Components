@@ -9,6 +9,7 @@ using LogicAPI.Server.Managers;
 using LogicLog;
 using LogicWorld.LogicCode;
 using LogicWorld.Server.Circuitry;
+using EVE.Components.Shared.Packets.C2S;
 
 namespace EVE.Components.Server
 {
@@ -24,6 +25,7 @@ namespace EVE.Components.Server
             Logger.Info("EVE_Components server mod loading");
 
             RawPacketHandlerInjector.addPacketHandler(new RamUpdateHandler(this));
+            RawPacketHandlerInjector.addPacketHandler(new RomActionHandler(this));
 
             _circuits = ServiceGetter.getService<ICircuitryManager>();
             _mutations = ServiceGetter.getService<IWorldMutationManager>();
@@ -66,6 +68,31 @@ namespace EVE.Components.Server
             catch (Exception e)
             {
                 Logger?.Error($"EVE_Components: Failed to persist RAM contents: {e}");
+            }
+        }
+
+        public void HandleAction(ComponentAddress address, RomActionType action)
+        {
+            LogicComponent component = _circuits.LookupComponent(address);
+            if (component == null)
+            {
+                Logger.Error($"EVE_Components: Component not found at address {address}");
+                return;
+            }
+
+            if (component is RamLogic ram)
+            {
+                if (action == RomActionType.Save) ram.Save();
+                else if (action == RomActionType.Restore) ram.Restore();
+            }
+            else if (component is MicrocodeRomLogic microRom)
+            {
+                if (action == RomActionType.Save) microRom.Save();
+                else if (action == RomActionType.Restore) microRom.Restore();
+            }
+            else
+            {
+                Logger.Error($"EVE_Components: Component at {address} is not a RamLogic or MicrocodeRomLogic (actual type: {component.GetType().Name})");
             }
         }
     }
