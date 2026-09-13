@@ -14,10 +14,10 @@ namespace EVE.Components.Server
         private bool _prevRestore;
 
         public const int InputCount = 51;
-        public const int WEIndex = 0;        // write enable
-        public const int SaveIndex = 1;      // save trigger
-        public const int RestoreIndex = 2;   // restore trigger
-        public const int AddrBase = 3;       // address bits 15-0
+        public const int AddrBase = 0;       // address bits 15-0
+        public const int WEIndex = 16;       // write enable
+        public const int SaveIndex = 17;     // save trigger
+        public const int RestoreIndex = 18;  // restore trigger
         public const int DataInBase = 19;    // write data bits 31-0
 
         public override bool HasPersistentValues => true;

@@ -7,26 +7,23 @@ MicrocodeROM:
                 position: (16, 0, 0.5)
                 scale: (32, 2, 2)
         inputs:
-            # Row 1 (y=0.5): Control signals + Address bits, back face
-            # Controls on far left, address bits to the right
-            # Input 0: Write enable (rising edge writes DWORD at addressed index)
+            # Row 1 (y=0.5): Address bits + Control signals, back face
+            # Address on left (matches ProgramRAM convention), controls on far right
+            # Inputs 0-15: Address bits 15-0 (MSB on left, LSB on right)
+            # Peg index 0 (bit 15, MSB) at x=0 (leftmost)
+            # Peg index 15 (bit 0, LSB) at x=15
             -
                 position: (0, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
-            # Input 1: Save trigger (rising edge persists ROM contents to world data)
             -
                 position: (1, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
-            # Input 2: Restore trigger (rising edge reverts ROM to originally-loaded data)
             -
                 position: (2, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
-            # Inputs 3-18: Address bits 15-0 (MSB on left, LSB on right)
-            # Peg index 3 (bit 15, MSB) at x=3 (leftmost of address range)
-            # Peg index 18 (bit 0, LSB) at x=18 (rightmost of address range)
             -
                 position: (3, 0.5, -0.5)
                 rotation: (-90, 0, 0)
@@ -79,16 +76,19 @@ MicrocodeROM:
                 position: (15, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
+            # Input 16: Write enable (rising edge writes DWORD at addressed index)
             -
-                position: (16, 0.5, -0.5)
+                position: (29, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
+            # Input 17: Save trigger (rising edge persists ROM contents to world data)
             -
-                position: (17, 0.5, -0.5)
+                position: (30, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
+            # Input 18: Restore trigger (rising edge reverts ROM to originally-loaded data)
             -
-                position: (18, 0.5, -0.5)
+                position: (31, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
             # Row 2 (y=1.5): Write data bits 31-0, back face
