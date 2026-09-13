@@ -4,7 +4,7 @@ MicrocodeROM:
         blocks:
             -
                 color: 88CCFF
-                position: (16, 0, 0.5)
+                position: (15.5, 0, 0.5)
                 scale: (32, 2, 2)
         inputs:
             # Row 1 (y=0.5): Address bits + Control signals, back face
