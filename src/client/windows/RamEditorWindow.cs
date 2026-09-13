@@ -13,6 +13,7 @@ using LogicInitializable;
 using LogicUI;
 using LogicUI.MenuParts;
 using LogicUI.MenuTypes;
+using LogicUI.MenuTypes.ConfigurableMenus;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
