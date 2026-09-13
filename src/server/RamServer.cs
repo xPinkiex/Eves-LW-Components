@@ -56,7 +56,7 @@ namespace EVE.Components.Server
             }
         }
 
-        public static void RequestPersistence(RamLogic rom)
+        public static void RequestPersistence(LogicComponent rom)
         {
             try
             {
