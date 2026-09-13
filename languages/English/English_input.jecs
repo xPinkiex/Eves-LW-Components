@@ -5,7 +5,8 @@ FancyInput.Trigger.EVE_Components.EditProgram.Description: """
     Opens the editor for the RAM or Microcode ROM block you are looking at.
     """
 
-EVE_Components.EditorTitle: "RAM Editor"
+EVE_Components.RamEditorTitle: "RAM Editor"
+EVE_Components.MicrocodeEditorTitle: "Microcode Editor"
 EVE_Components.Placeholder: """
     Paste bytes here...
     

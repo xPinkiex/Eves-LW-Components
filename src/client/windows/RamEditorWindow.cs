@@ -32,8 +32,8 @@ namespace EVE.Components.Client.Windows
 
         public static void init()
         {
-            var window = WS.window("RAM Editor")
-                .setLocalizedTitle("EVE_Components.EditorTitle")
+            var window = WS.window("ROM Editor")
+                .setLocalizedTitle("EVE_Components.RamEditorTitle")
                 .setDefaultSize(960, 720)
                 .setResizeable(true)
                 .setMinSize(480, 360);
@@ -94,7 +94,29 @@ namespace EVE.Components.Client.Windows
         {
             _targetAddress = address;
             SetMenuVisible(true);
+            _instance?.UpdateTitle(address);
             _instance?.PreFillFromRom(address);
+        }
+
+        private void UpdateTitle(ComponentAddress address)
+        {
+            try
+            {
+                var component = Instances.MainWorld.Data.Lookup(address);
+                if (component == null) return;
+                ComponentType microType = Instances.MainWorld.ComponentTypes.GetComponentType("EVE_Components.MicrocodeROM");
+                string key = component.Data.Type == microType
+                    ? "EVE_Components.MicrocodeEditorTitle"
+                    : "EVE_Components.RamEditorTitle";
+                var utilities = GetComponent<ConfigurableMenuUtility>();
+                if (utilities != null && utilities.TitleLocalizor != null)
+                {
+                    utilities.TitleLocalizor.SetLocalizationKey(key);
+                }
+            }
+            catch
+            {
+            }
         }
 
         private void PreFillFromRom(ComponentAddress address)
