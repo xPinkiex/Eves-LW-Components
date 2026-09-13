@@ -7,24 +7,26 @@ MicrocodeROM:
                 position: (15.5, 0, 0.5)
                 scale: (32, 2, 2)
         inputs:
-            # Row 1 (y=0.5): Write enable + Address bits, back face
-            # WE on far left, address bits to the right
+            # Row 1 (y=0.5): Control signals + Address bits, back face
+            # Controls on far left, address bits to the right
             # Input 0: Write enable (rising edge writes DWORD at addressed index)
             -
                 position: (0, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
-            # Inputs 1-16: Address bits 15-0 (MSB on left, LSB on right)
-            # Peg index 1 (bit 15, MSB) at x=1
-            # Peg index 16 (bit 0, LSB) at x=16
+            # Input 1: Save trigger (rising edge persists ROM contents to world data)
             -
                 position: (1, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
+            # Input 2: Restore trigger (rising edge reverts ROM to originally-loaded data)
             -
                 position: (2, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
+            # Inputs 3-18: Address bits 15-0 (MSB on left, LSB on right)
+            # Peg index 3 (bit 15, MSB) at x=3
+            # Peg index 18 (bit 0, LSB) at x=18
             -
                 position: (3, 0.5, -0.5)
                 rotation: (-90, 0, 0)
@@ -81,9 +83,17 @@ MicrocodeROM:
                 position: (16, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
+            -
+                position: (17, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (18, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
             # Row 2 (y=1.5): Write data bits 31-0, back face
-            # Peg index 17 (bit 31, MSB) at x=0 (leftmost)
-            # Peg index 48 (bit 0, LSB) at x=31 (rightmost)
+            # Peg index 19 (bit 31, MSB) at x=0 (leftmost)
+            # Peg index 50 (bit 0, LSB) at x=31 (rightmost)
             -
                 position: (0, 1.5, -0.5)
                 rotation: (-90, 0, 0)
