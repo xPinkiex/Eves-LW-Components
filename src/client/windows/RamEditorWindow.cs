@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using EVE.Components.Client.Keybindings;
 using EVE.Components.Shared.Packets.C2S;
 using EccsGuiBuilder.Client.Layouts.Elements;
@@ -23,6 +24,7 @@ namespace EVE.Components.Client.Windows
     {
         private static ComponentAddress _targetAddress;
         private static RamEditorWindow _instance;
+        private static Dictionary<ComponentAddress, string> _textCache = new Dictionary<ComponentAddress, string>();
 
         public static void initOnce()
         {
@@ -95,7 +97,22 @@ namespace EVE.Components.Client.Windows
             _targetAddress = address;
             SetMenuVisible(true);
             _instance?.UpdateTitle(address);
-            _instance?.PreFillFromRom(address);
+            if (_textCache.TryGetValue(address, out string cached))
+            {
+                _instance?.SetInputText(cached);
+            }
+            else
+            {
+                _instance?.PreFillFromRom(address);
+            }
+        }
+
+        private void SetInputText(string text)
+        {
+            if (inputField != null)
+            {
+                inputField.text = text;
+            }
         }
 
         private void UpdateTitle(ComponentAddress address)
@@ -194,6 +211,8 @@ namespace EVE.Components.Client.Windows
                 return;
             }
 
+            _textCache[_targetAddress] = text;
+
             if (statusLabel != null)
             {
                 statusLabel.text = $"Bytes: {result.ByteCount}";
@@ -216,6 +235,8 @@ namespace EVE.Components.Client.Windows
             {
                 statusLabel.text = "";
             }
+
+            _textCache.Remove(_targetAddress);
 
             Instances.SendData.Send(new RamUpdatePacket()
             {
@@ -244,6 +265,8 @@ namespace EVE.Components.Client.Windows
             {
                 statusLabel.text = "Restored from original";
             }
+
+            _textCache.Remove(_targetAddress);
 
             Instances.SendData.Send(new RomActionPacket()
             {
