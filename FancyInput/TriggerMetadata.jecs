@@ -1,5 +1,5 @@
 EVE_Components.EditProgram:
-  Heading: "Eve's Components"
+  Heading: EVE_Components
   DefaultBinding:
     Options:
       - X
