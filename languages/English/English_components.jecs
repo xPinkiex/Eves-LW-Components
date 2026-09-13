@@ -1,1 +1,3 @@
 EVE_Components.ProgramRAM : "Eve's RAM"
+
+EVE_Components.MicrocodeROM : "Eve's Microcode ROM"

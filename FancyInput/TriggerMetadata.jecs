@@ -3,3 +3,9 @@ EVE_Components.EditProgram:
   DefaultBinding:
     Options:
       - O
+
+EVE_Components.EditMicrocode:
+  Heading: "Eve's Components"
+  DefaultBinding:
+    Options:
+      - P

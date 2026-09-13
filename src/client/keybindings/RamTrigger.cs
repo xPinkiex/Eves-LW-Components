@@ -4,5 +4,6 @@ namespace EVE.Components.Client.Keybindings
     {
         None = 0,
         EditProgram,
+        EditMicrocode,
     }
 }

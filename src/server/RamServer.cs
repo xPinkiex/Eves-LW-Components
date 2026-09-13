@@ -45,9 +45,14 @@ namespace EVE.Components.Server
                 rom.SetRomData(data);
                 _mutations.ForceDataRefresh(rom);
             }
+            else if (component is MicrocodeRomLogic microRom)
+            {
+                microRom.SetRomData(data);
+                _mutations.ForceDataRefresh(microRom);
+            }
             else
             {
-                Logger.Error($"EVE_Components: Component at {address} is not a RamLogic (actual type: {component.GetType().Name})");
+                Logger.Error($"EVE_Components: Component at {address} is not a RamLogic or MicrocodeRomLogic (actual type: {component.GetType().Name})");
             }
         }
 

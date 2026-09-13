@@ -1,0 +1,329 @@
+MicrocodeROM:
+    column: "Miscellaneous"
+    prefab:
+        blocks:
+            -
+                color: 88CCFF
+                position: (16, 0, 0.5)
+                scale: (32, 2, 2)
+        inputs:
+            # Row 1 (y=0.5): Control signals + Address bits, back face
+            # Controls on far left, address bits to the right
+            # Input 0: Write enable (rising edge writes DWORD at addressed index)
+            -
+                position: (0, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Input 1: Save trigger (rising edge persists ROM contents to world data)
+            -
+                position: (1, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Input 2: Restore trigger (rising edge reverts ROM to originally-loaded data)
+            -
+                position: (2, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Inputs 3-18: Address bits 15-0 (MSB on left, LSB on right)
+            # Peg index 3 (bit 15, MSB) at x=3 (leftmost of address range)
+            # Peg index 18 (bit 0, LSB) at x=18 (rightmost of address range)
+            -
+                position: (3, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (4, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (5, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (6, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (7, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (8, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (9, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (10, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (11, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (12, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (13, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (14, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (15, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (16, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (17, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (18, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Row 2 (y=1.5): Write data bits 31-0, back face
+            # Peg index 19 (bit 31, MSB) at x=0 (leftmost)
+            # Peg index 50 (bit 0, LSB) at x=31 (rightmost)
+            -
+                position: (0, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (1, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (2, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (3, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (4, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (5, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (6, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (7, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (8, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (9, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (10, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (11, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (12, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (13, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (14, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (15, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (16, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (17, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (18, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (19, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (20, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (21, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (22, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (23, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (24, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (25, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (26, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (27, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (28, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (29, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (30, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (31, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+        outputs:
+            # Data bits 31-0, front face, MSB on left
+            # Peg index 0 (bit 31, MSB) at x=0 (leftmost)
+            # Peg index 31 (bit 0, LSB) at x=31 (rightmost)
+            -
+                position: (0, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (1, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (2, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (3, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (4, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (5, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (6, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (7, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (8, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (9, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (10, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (11, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (12, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (13, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (14, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (15, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (16, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (17, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (18, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (19, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (20, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (21, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (22, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (23, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (24, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (25, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (26, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (27, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (28, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (29, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (30, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (31, 0.5, 1.5)
+                rotation: (90, 0, 0)
+    logicCode: EVE.Components.Server.MicrocodeRomLogic
+    placingRules:
+        offsetDimensions: (10, 3)
+        gridPlacingDimensions: (32, 5)
+        allowFineRotation: false
