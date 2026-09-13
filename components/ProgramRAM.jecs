@@ -1,5 +1,6 @@
 ProgramRAM:
-    column: "Miscellaneous"
+    column: "EVE_Components"
+    category: "Memory"
     prefab:
         blocks:
             -

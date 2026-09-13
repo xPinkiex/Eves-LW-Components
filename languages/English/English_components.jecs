@@ -1,3 +1,6 @@
 EVE_Components.ProgramRAM : "Eve's RAM"
 
 EVE_Components.MicrocodeROM : "Eve's Microcode ROM"
+
+ComponentColumn.EVE_Components    : "Eve's Components"
+ComponentCategory.Memory          : "Memory"
