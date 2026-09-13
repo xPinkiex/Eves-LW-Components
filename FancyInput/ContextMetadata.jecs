@@ -1,0 +1,5 @@
+EVE_Components.ProgramRAM:
+  InjectTriggersInto:
+    - MHG.BuildActions
+  Triggers:
+    - EVE_Components.EditProgram

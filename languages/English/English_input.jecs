@@ -1,0 +1,21 @@
+MHG.SettingsMenu.Pages.Controls.Headings.EVE_Components: "Mod: Eve's Components"
+
+FancyInput.Trigger.EVE_Components.EditProgram: "Edit RAM"
+FancyInput.Trigger.EVE_Components.EditProgram.Description: """
+    Opens the editor for the RAM block you are looking at.
+    """
+
+EVE_Components.EditorTitle: "RAM Editor"
+EVE_Components.Placeholder: """
+    Paste bytes here...
+    
+    0x01 0b11001000 0xFF
+    @0x0100
+    0x42 0b00000001
+    
+    Lines starting with // are ignored.
+    Use 0x for hex, 0b for binary.
+    Use @0xADDR to set current address.
+    """
+EVE_Components.Apply: "Apply"
+EVE_Components.Clear: "Clear"

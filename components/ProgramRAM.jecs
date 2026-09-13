@@ -1,0 +1,164 @@
+ProgramRAM:
+    column: "Miscellaneous"
+    prefab:
+        blocks:
+            -
+                color: FF8800
+                position: (7.5, 0, 0.5)
+                scale: (16, 2, 2)
+        inputs:
+            # Row 1 (y=0.5): Address bits 0-15, back face, MSB on left
+            # Peg index 0 (bit 0, LSB) at x=15 (rightmost)
+            # Peg index 15 (bit 15, MSB) at x=0 (leftmost)
+            # 1-unit spacing on 16-wide block: 0.5 margin each side
+            -
+                position: (15, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (14, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (13, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (12, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (11, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (10, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (9, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (8, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (7, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (6, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (5, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (4, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (3, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (2, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (1, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (0, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Row 2 (y=1.5): Write control + write data, back face
+            # Controls on far left, data-in centered (x=4-11, matching data-out)
+            # Input 16: Write enable (rising edge writes data at addressed byte)
+            -
+                position: (0, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Inputs 17-24: Write data bits 0-7 (MSB on left, LSB on right)
+            # Peg index 17 (bit 0, LSB) at x=11 (rightmost)
+            # Peg index 24 (bit 7, MSB) at x=4 (leftmost)
+            # 1-unit spacing, centered on 16-wide block
+            -
+                position: (11, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (10, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (9, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (8, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (7, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (6, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (5, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (4, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Input 25: Save trigger (rising edge persists RAM contents to world data)
+            -
+                position: (1, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Input 26: Restore trigger (rising edge reverts RAM to originally-loaded program)
+            -
+                position: (2, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+        outputs:
+            # Data bits 0-7, front face, MSB on left
+            # Peg index 0 (bit 0, LSB) at x=11 (rightmost)
+            # Peg index 7 (bit 7, MSB) at x=4 (leftmost)
+            # Centered on 16-wide block: 1-unit spacing, x=4 to 11
+            -
+                position: (11, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (10, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (9, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (8, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (7, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (6, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (5, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (4, 0.5, 1.5)
+                rotation: (90, 0, 0)
+    logicCode: EVE.Components.Server.RamLogic
+    placingRules:
+        offsetDimensions: (10, 3)
+        gridPlacingDimensions: (16, 5)
+        allowFineRotation: false

@@ -1,0 +1,8 @@
+ID: EVE_Components
+Name: Eve's Components
+Author: EVE
+Version: 1.0.0
+Priority: 0
+Type: Optional
+Dependencies:
+  - EccsLogicWorldAPI

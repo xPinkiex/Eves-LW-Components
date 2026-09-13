@@ -1,0 +1,196 @@
+using System;
+using EVE.Components.Client.Keybindings;
+using EVE.Components.Shared.Packets.C2S;
+using EccsGuiBuilder.Client.Layouts.Elements;
+using EccsGuiBuilder.Client.Layouts.Helper;
+using EccsGuiBuilder.Client.Wrappers;
+using EccsGuiBuilder.Client.Wrappers.AutoAssign;
+using EccsLogicWorldAPI.Client.AccessHelpers;
+using FancyInput;
+using LogicAPI.Data;
+using LogicInitializable;
+using LogicUI;
+using LogicUI.MenuParts;
+using LogicUI.MenuTypes;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+using LogicWorld.Interfaces;
+
+namespace EVE.Components.Client.Windows
+{
+    public class RamEditorWindow : ToggleableSingletonMenu<RamEditorWindow>, IAssignMyFields
+    {
+        private static ComponentAddress _targetAddress;
+        private static RamEditorWindow _instance;
+
+        public static void initOnce()
+        {
+            OnMenuShown += OverlayActions.getOverlayShownAction();
+            OnMenuHidden += OverlayActions.getOverlayHidingAction();
+        }
+
+        public static void init()
+        {
+            var window = WS.window("RAM Editor")
+                .setLocalizedTitle("EVE_Components.EditorTitle")
+                .setDefaultSize(960, 720)
+                .setResizeable(true)
+                .setMinSize(480, 360);
+
+            var content = window.contentWrapper
+                .layoutGrowElement(spacing: 10, padding: new RectOffset(20, 20, 20, 20), expandChildThickness: true);
+
+            content.add(WS.inputArea
+                .setPlaceholderLocalizationKey("EVE_Components.Placeholder")
+                .fixTextAreaColor()
+                .addAndConfigure<LayoutElement>(le => {
+                    le.minHeight = 200;
+                    le.preferredHeight = 200;
+                    le.flexibleHeight = 1;
+                })
+                .injectionKey(nameof(inputField))
+            );
+
+            content.add(WS.textLine
+                .removeLocalization()
+                .injectionKey(nameof(statusLabel))
+                .configureTMP(tmp => {
+                    tmp.fontSize = 30;
+                    tmp.horizontalAlignment = HorizontalAlignmentOptions.Left;
+                })
+            );
+
+            content.addContainer("ButtonRow")
+                .layoutHorizontalInner(spacing: 10, expandChildThickness: true)
+                .add(WS.button
+                    .setLocalizationKey("EVE_Components.Apply")
+                    .add<ButtonLayout>()
+                    .injectionKey(nameof(applyButton))
+                )
+                .add(WS.button
+                    .setLocalizationKey("EVE_Components.Clear")
+                    .add<ButtonLayout>()
+                    .injectionKey(nameof(clearButton))
+                );
+
+            window.add<RamEditorWindow>()
+                .addOnCloseAction(HideMenu)
+                .add<CloseWindowOnKey>()
+                .build();
+        }
+
+        public static void openFor(ComponentAddress address)
+        {
+            _targetAddress = address;
+            SetMenuVisible(true);
+            _instance?.PreFillFromRom(address);
+        }
+
+        private void PreFillFromRom(ComponentAddress address)
+        {
+            if (inputField == null) return;
+            try
+            {
+                var component = Instances.MainWorld.Data.Lookup(address);
+                if (component == null) return;
+                byte[] data = component.Data.CustomData;
+                if (data == null || data.Length == 0)
+                {
+                    inputField.text = "";
+                    return;
+                }
+                var sb = new System.Text.StringBuilder(data.Length * 5);
+                for (int i = 0; i < data.Length; i++)
+                {
+                    if (i > 0) sb.Append(' ');
+                    sb.Append("0x");
+                    sb.Append(data[i].ToString("X2"));
+                }
+                inputField.text = sb.ToString();
+            }
+            catch
+            {
+            }
+        }
+
+        [AssignMe]
+        public TMP_InputField inputField;
+
+        [AssignMe]
+        public TextMeshProUGUI statusLabel;
+
+        [AssignMe]
+        public HoverButton applyButton;
+
+        [AssignMe]
+        public HoverButton clearButton;
+
+        public override void Initialize()
+        {
+            base.Initialize();
+            _instance = this;
+            applyButton.OnClickEnd -= OnApply;
+            applyButton.OnClickEnd += OnApply;
+            clearButton.OnClickEnd -= OnClear;
+            clearButton.OnClickEnd += OnClear;
+        }
+
+        private void OnApply()
+        {
+            if (inputField == null) return;
+
+            string text = inputField.text;
+            var result = RamParser.Parse(text);
+
+            if (!result.Success)
+            {
+                if (statusLabel != null)
+                {
+                    statusLabel.text = $"Error: {result.Error}";
+                }
+                return;
+            }
+
+            if (statusLabel != null)
+            {
+                statusLabel.text = $"Bytes: {result.ByteCount}";
+            }
+
+            Instances.SendData.Send(new RamUpdatePacket()
+            {
+                ComponentAddress = _targetAddress,
+                RomData = result.Data,
+            });
+        }
+
+        private void OnClear()
+        {
+            if (inputField != null)
+            {
+                inputField.text = "";
+            }
+            if (statusLabel != null)
+            {
+                statusLabel.text = "";
+            }
+
+            Instances.SendData.Send(new RamUpdatePacket()
+            {
+                ComponentAddress = _targetAddress,
+                RomData = new byte[0],
+            });
+        }
+    }
+
+    public class CloseWindowOnKey : MonoBehaviour
+    {
+        private void Update()
+        {
+            if (RamTrigger.EditProgram.DownThisFrame() || UITrigger.Back.DownThisFrame())
+            {
+                RamEditorWindow.HideMenu();
+            }
+        }
+    }
+}
