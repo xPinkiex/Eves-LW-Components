@@ -48,7 +48,7 @@ namespace EVE.Components.Server
             {
                 if (base.Inputs[AddrBase + i].On)
                 {
-                    address |= (1 << i);
+                    address |= (1 << (15 - i));
                 }
             }
 
@@ -62,7 +62,7 @@ namespace EVE.Components.Server
                 {
                     if (base.Inputs[DataInBase + i].On)
                     {
-                        dataIn |= (1u << i);
+                        dataIn |= (1u << (31 - i));
                     }
                 }
                 WriteDword(byteOffset, dataIn);
@@ -80,7 +80,7 @@ namespace EVE.Components.Server
 
             for (int i = 0; i < 32; i++)
             {
-                base.Outputs[i].On = (value & (1u << i)) != 0;
+                base.Outputs[i].On = (value & (1u << (31 - i))) != 0;
             }
         }
 

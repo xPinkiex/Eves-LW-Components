@@ -1,0 +1,25 @@
+NormallyClosedRelay:
+    column: "EVE_Components"
+    category: "Other"
+    prefab:
+        blocks:
+            -
+                color: 2B4D7E
+                position: (0, 0, 0.5)
+                scale: (1, 1, 2)
+        inputs:
+            -
+                position: (0, 1, 0.5)
+            -
+                position: (0, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.62
+            -
+                position: (0, 0.5, 1.5)
+                rotation: (90, 0, 0)
+                length: 0.62
+    logicCode: EVE.Components.Server.NormallyClosedRelay
+    placingRules:
+        offsetDimensions: (1, 2)
+        gridPlacingDimensions: (1, 4)
+        allowFineRotation: false

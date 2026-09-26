@@ -47,6 +47,11 @@ namespace EVE.Components.Client.Windows
             content.add(WS.inputArea
                 .setPlaceholderLocalizationKey("EVE_Components.Placeholder")
                 .fixTextAreaColor()
+                .configure(tmp => {
+                    tmp.characterLimit = 0;               // 0 = unlimited input length
+                    tmp.textComponent.maxVisibleCharacters = 0; // 0 = unlimited rendering
+                    tmp.lineLimit = 0;                    // 0 = unlimited lines
+                })
                 .addAndConfigure<LayoutElement>(le => {
                     le.minHeight = 200;
                     le.preferredHeight = 200;
@@ -283,7 +288,7 @@ namespace EVE.Components.Client.Windows
     {
         private void Update()
         {
-            if (RamTrigger.EditProgram.DownThisFrame() || UITrigger.Back.DownThisFrame())
+            if (UITrigger.Back.DownThisFrame())
             {
                 RamEditorWindow.HideMenu();
             }
