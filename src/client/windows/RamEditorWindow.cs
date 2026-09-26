@@ -49,7 +49,6 @@ namespace EVE.Components.Client.Windows
                 .fixTextAreaColor()
                 .configure(tmp => {
                     tmp.characterLimit = 0;               // 0 = unlimited input length
-                    tmp.textComponent.maxVisibleCharacters = 0; // 0 = unlimited rendering
                     tmp.lineLimit = 0;                    // 0 = unlimited lines
                 })
                 .addAndConfigure<LayoutElement>(le => {
