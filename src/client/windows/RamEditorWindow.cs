@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using EVE.Components.Client.Keybindings;
+using EVE.Components.Shared;
 using EVE.Components.Shared.Packets.C2S;
 using EccsGuiBuilder.Client.Layouts.Elements;
 using EccsGuiBuilder.Client.Layouts.Helper;
@@ -154,7 +156,18 @@ namespace EVE.Components.Client.Windows
                     inputField.text = "";
                     return;
                 }
-                var sb = new System.Text.StringBuilder(data.Length * 5);
+
+                if (IsPrintableAscii(data))
+                {
+                    string text = Encoding.UTF8.GetString(data);
+                    if (text.Contains("0x") || text.Contains("@"))
+                    {
+                        inputField.text = text;
+                        return;
+                    }
+                }
+
+                var sb = new StringBuilder(data.Length * 5);
                 for (int i = 0; i < data.Length; i++)
                 {
                     if (i > 0) sb.Append(' ');
@@ -227,6 +240,7 @@ namespace EVE.Components.Client.Windows
             {
                 ComponentAddress = _targetAddress,
                 RomData = result.Data,
+                SourceText = text,
             });
         }
 
@@ -247,6 +261,7 @@ namespace EVE.Components.Client.Windows
             {
                 ComponentAddress = _targetAddress,
                 RomData = new byte[0],
+                SourceText = "",
             });
         }
 
@@ -280,6 +295,17 @@ namespace EVE.Components.Client.Windows
             });
 
             PreFillFromRom(_targetAddress);
+        }
+
+        private static bool IsPrintableAscii(byte[] data)
+        {
+            for (int i = 0; i < data.Length; i++)
+            {
+                byte b = data[i];
+                if (b == 0x09 || b == 0x0A || b == 0x0D) continue;
+                if (b < 0x20 || b > 0x7E) return false;
+            }
+            return true;
         }
     }
 

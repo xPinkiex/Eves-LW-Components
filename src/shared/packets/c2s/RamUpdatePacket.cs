@@ -9,5 +9,6 @@ namespace EVE.Components.Shared.Packets.C2S
     {
         [Key(0)] public ComponentAddress ComponentAddress;
         [Key(1)] public byte[] RomData;
+        [Key(2)] public string SourceText;
     }
 }

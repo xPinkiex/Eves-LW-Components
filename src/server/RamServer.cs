@@ -32,7 +32,7 @@ namespace EVE.Components.Server
             Logger.Info("EVE_Components server mod loaded");
         }
 
-        public void UpdateRom(ComponentAddress address, byte[] data)
+        public void UpdateRom(ComponentAddress address, byte[] data, string sourceText)
         {
             Logger.Info($"EVE_Components: UpdateRom, address={address}, length={data?.Length ?? 0}");
             LogicComponent component = _circuits.LookupComponent(address);
@@ -44,12 +44,12 @@ namespace EVE.Components.Server
 
             if (component is RamLogic rom)
             {
-                rom.SetRomData(data);
+                rom.SetRomData(data, sourceText);
                 _mutations.ForceDataRefresh(rom);
             }
             else if (component is MicrocodeRomLogic microRom)
             {
-                microRom.SetRomData(data);
+                microRom.SetRomData(data, sourceText);
                 _mutations.ForceDataRefresh(microRom);
             }
             else

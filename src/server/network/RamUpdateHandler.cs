@@ -15,7 +15,7 @@ namespace EVE.Components.Server.Network
 
         public override void Handle(RamUpdatePacket packet, HandlerContext context)
         {
-            _server.UpdateRom(packet.ComponentAddress, packet.RomData);
+            _server.UpdateRom(packet.ComponentAddress, packet.RomData, packet.SourceText);
         }
     }
 }

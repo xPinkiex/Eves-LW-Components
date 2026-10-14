@@ -14,6 +14,7 @@ using System;
 //   0b11001000      binary byte(s) (up to 16 bits → 2 bytes)
 //   @0xADDR         set current address (4 hex digits max, 0–65535)
 //   // comment      single-line comment (ignored until newline)
+//   #  comment      single-line comment (ignored until newline)
 //
 // Multi-byte hex tokens — little-endian word semantics:
 //
@@ -38,7 +39,7 @@ using System;
 // contents as one 0xNN token per byte (big-endian hex per byte, which
 // round-trips through the parser identically).
 
-namespace EVE.Components.Client
+namespace EVE.Components.Shared
 {
     public static class RamParser
     {
@@ -67,6 +68,13 @@ namespace EVE.Components.Client
             while (i < len)
             {
                 if (text[i] == '/' && i + 1 < len && text[i + 1] == '/')
+                {
+                    while (i < len && text[i] != '\n')
+                        i++;
+                    continue;
+                }
+
+                if (text[i] == '#')
                 {
                     while (i < len && text[i] != '\n')
                         i++;

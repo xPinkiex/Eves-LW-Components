@@ -1,4 +1,6 @@
 using System;
+using System.Text;
+using EVE.Components.Shared;
 using LogicAPI.Server.Components;
 using LogicLog;
 
@@ -8,6 +10,8 @@ namespace EVE.Components.Server
     {
         private byte[] _romData = new byte[0];
         private byte[] _originalData = new byte[0];
+        private string _sourceText = null;
+        private string _originalSourceText = null;
 
         private bool _prevWriteEnable;
 
@@ -17,10 +21,12 @@ namespace EVE.Components.Server
 
         public override bool HasPersistentValues => true;
 
-        public void SetRomData(byte[] data)
+        public void SetRomData(byte[] data, string sourceText)
         {
             _romData = data ?? new byte[0];
             _originalData = (byte[])_romData.Clone();
+            _sourceText = sourceText;
+            _originalSourceText = sourceText;
             QueueLogicUpdate();
         }
 
@@ -32,6 +38,8 @@ namespace EVE.Components.Server
         public void Restore()
         {
             _romData = (byte[])_originalData.Clone();
+            _sourceText = _originalSourceText;
+            RamServer.RequestPersistence(this);
             QueueLogicUpdate();
         }
 
@@ -98,19 +106,49 @@ namespace EVE.Components.Server
 
         protected override byte[] SerializeCustomData()
         {
+            if (_sourceText != null)
+            {
+                return Encoding.UTF8.GetBytes(_sourceText);
+            }
             return _romData;
         }
 
         protected override void DeserializeData(byte[] data)
         {
             _romData = data ?? new byte[0];
+            _sourceText = null;
+            _originalSourceText = null;
+
+            if (data != null && data.Length > 0 && IsPrintableAscii(data))
+            {
+                string text = Encoding.UTF8.GetString(data);
+                var result = RamParser.Parse(text);
+                if (result.Success && result.ByteCount > 0)
+                {
+                    _sourceText = text;
+                    _romData = result.Data;
+                }
+            }
+
             _originalData = (byte[])_romData.Clone();
+            _originalSourceText = _sourceText;
             RamServer.Logger?.Info($"EVE_Components: Loaded ROM from world data, {_romData.Length} bytes");
             QueueLogicUpdate();
         }
 
         protected override void SavePersistentValuesToCustomData()
         {
+        }
+
+        private static bool IsPrintableAscii(byte[] data)
+        {
+            for (int i = 0; i < data.Length; i++)
+            {
+                byte b = data[i];
+                if (b == 0x09 || b == 0x0A || b == 0x0D) continue;
+                if (b < 0x20 || b > 0x7E) return false;
+            }
+            return true;
         }
     }
 }
