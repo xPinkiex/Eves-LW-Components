@@ -157,14 +157,10 @@ namespace EVE.Components.Client.Windows
                     return;
                 }
 
-                if (IsPrintableAscii(data))
+                if (RamParser.TryDecodeUtf8(data, out string text))
                 {
-                    string text = Encoding.UTF8.GetString(data);
-                    if (text.Contains("0x") || text.Contains("@"))
-                    {
-                        inputField.text = text;
-                        return;
-                    }
+                    inputField.text = text;
+                    return;
                 }
 
                 var sb = new StringBuilder(data.Length * 5);
@@ -295,17 +291,6 @@ namespace EVE.Components.Client.Windows
             });
 
             PreFillFromRom(_targetAddress);
-        }
-
-        private static bool IsPrintableAscii(byte[] data)
-        {
-            for (int i = 0; i < data.Length; i++)
-            {
-                byte b = data[i];
-                if (b == 0x09 || b == 0x0A || b == 0x0D) continue;
-                if (b < 0x20 || b > 0x7E) return false;
-            }
-            return true;
         }
     }
 

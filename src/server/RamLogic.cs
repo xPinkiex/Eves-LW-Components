@@ -12,6 +12,7 @@ namespace EVE.Components.Server
         private byte[] _originalData = new byte[0];
         private string _sourceText = null;
         private string _originalSourceText = null;
+        private bool _skipNextDeserialize;
 
         private bool _prevWriteEnable;
 
@@ -27,6 +28,7 @@ namespace EVE.Components.Server
             _originalData = (byte[])_romData.Clone();
             _sourceText = sourceText;
             _originalSourceText = sourceText;
+            _skipNextDeserialize = true;
             QueueLogicUpdate();
         }
 
@@ -39,6 +41,7 @@ namespace EVE.Components.Server
         {
             _romData = (byte[])_originalData.Clone();
             _sourceText = _originalSourceText;
+            _skipNextDeserialize = true;
             RamServer.RequestPersistence(this);
             QueueLogicUpdate();
         }
@@ -115,13 +118,19 @@ namespace EVE.Components.Server
 
         protected override void DeserializeData(byte[] data)
         {
+            if (_skipNextDeserialize)
+            {
+                _skipNextDeserialize = false;
+                return;
+            }
+
             _romData = data ?? new byte[0];
             _sourceText = null;
             _originalSourceText = null;
 
-            if (data != null && data.Length > 0 && IsPrintableAscii(data))
+            if (data != null && data.Length > 0
+                && RamParser.TryDecodeUtf8(data, out string text))
             {
-                string text = Encoding.UTF8.GetString(data);
                 var result = RamParser.Parse(text);
                 if (result.Success && result.ByteCount > 0)
                 {
@@ -138,17 +147,7 @@ namespace EVE.Components.Server
 
         protected override void SavePersistentValuesToCustomData()
         {
-        }
-
-        private static bool IsPrintableAscii(byte[] data)
-        {
-            for (int i = 0; i < data.Length; i++)
-            {
-                byte b = data[i];
-                if (b == 0x09 || b == 0x0A || b == 0x0D) continue;
-                if (b < 0x20 || b > 0x7E) return false;
-            }
-            return true;
+            _skipNextDeserialize = true;
         }
     }
 }

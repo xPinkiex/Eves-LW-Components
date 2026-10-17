@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 // ROM Input Format (for compiler/emitter reference):
 //
@@ -49,6 +50,51 @@ namespace EVE.Components.Shared
             public byte[] Data;
             public string Error;
             public int ByteCount;
+        }
+
+        public static bool TryDecodeUtf8(byte[] data, out string text)
+        {
+            text = null;
+            if (data == null || data.Length == 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                string decoded = Encoding.UTF8.GetString(data);
+                if (Encoding.UTF8.GetByteCount(decoded) != data.Length)
+                {
+                    return false;
+                }
+
+                bool has0x = false;
+                bool hasAt = false;
+                for (int i = 0; i < decoded.Length; i++)
+                {
+                    char c = decoded[i];
+                    if (c == '0' && i + 1 < decoded.Length && (decoded[i + 1] == 'x' || decoded[i + 1] == 'X'))
+                    {
+                        has0x = true;
+                    }
+                    else if (c == '@')
+                    {
+                        hasAt = true;
+                    }
+                }
+
+                if (!has0x && !hasAt)
+                {
+                    return false;
+                }
+
+                text = decoded;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static ParseResult Parse(string text)
