@@ -4,6 +4,9 @@ EVE_Components.MicrocodeROM : "Eve's Microcode ROM"
 
 EVE_Components.NormallyClosedRelay : "Eve's Normally-Closed Relay"
 
+EVE_Components.Breakpoint : "Eve's Breakpoint"
+
 ComponentColumn.EVE_Components    : "Eve's Components"
 ComponentCategory.Memory          : "Memory"
 ComponentCategory.Other           : "Other"
+ComponentCategory.Debug           : "Debug"
