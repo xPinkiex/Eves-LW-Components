@@ -29,6 +29,12 @@ namespace EVE.Components.Server
 
             _circuits = ServiceGetter.getService<ICircuitryManager>();
             _mutations = ServiceGetter.getService<IWorldMutationManager>();
+
+            // Apply the Breakpoint's pause-timing patch (Harmony). Gracefully no-ops
+            // and logs a warning if the SimulationManager shape changes in a future
+            // Logic World update — the mod still loads, breakpoint keeps vanilla latency.
+            BreakpointPausePatch.Initialize(Logger);
+
             Logger.Info("EVE_Components server mod loaded");
         }
 

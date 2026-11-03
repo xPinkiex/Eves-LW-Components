@@ -30,9 +30,13 @@ Pauses the simulation when the input peg goes from low to high (rising edge). Us
 - No outputs
 - Edge-triggered: only pauses on low-to-high transition, won't re-pause while signal stays high
 - Stays paused until manually resumed
+- Pauses within **1 tick** of the rising edge at any simulation speed (see "Breakpoint pause timing" below)
 - Logs "Breakpoint hit!" to the console when triggered
 
 **To resume:** Click the pause/play button in the client UI, or run `simulation.resume` in the console. Single-stepping still works while paused.
+
+#### Breakpoint pause timing
+Logic World's simulation runs ticks in catch-up batches: each `Tick()` call runs as many `DoLogicUpdate()` calls as needed to catch up to real time, capped by a wall-clock budget. Vanilla only checks the pause flag once at the top of each `Tick()`, so a pause request issued *inside* a batch (by a component's `DoLogicUpdate`) isn't honored until the whole batch finishes — which means more missed ticks the higher your TPS. This mod ships a Harmony patch on `SimulationManager.Tick` that re-checks the running state after every `DoLogicUpdate()` and aborts the batch immediately when a pause is requested mid-batch, so the breakpoint pauses within one tick regardless of TPS.
 
 ## ROM Editor
 
@@ -57,4 +61,5 @@ Press **X** while looking at a RAM or Microcode ROM block to open the editor.
 
 ## Dependencies
 
-- [EccsLogicWorldAPI](https://github.com/Ecconia/EccsLogicWorldAPI)
+- [EccsLogicWorldAPI](https://github.com/Ecconia/Ecconia-LogicWorld-Mods)
+- [HarmonyForLogicWorld](https://github.com/Ecconia/Ecconia-LogicWorld-Mods) (used by the Breakpoint's pause-timing patch)
