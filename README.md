@@ -55,11 +55,12 @@ Press **X** while looking at a RAM or Microcode ROM block to open the editor.
 
 ### Loading files (`@file`)
 
-For programs too big to paste. Put the file in the `roms` folder in the Logic World folder
-(created on first start; absolute paths work too) and write in the editor:
+For programs too big to paste. Put the file in the `bins` folder of the save
+(`Logic World/saves/<save name>/bins`; the compiler's `--save` creates it; absolute paths work too)
+and write in the editor:
 
 ```
-@file kernel.hex
+@file kernel.bin
 @0x8000 @file data.bin      // more files or bytes at other addresses
 ```
 
@@ -68,11 +69,14 @@ For programs too big to paste. Put the file in the `roms` folder in the Logic Wo
   and `@file` itself.
 - After a file, loading continues right after its last byte. Everything else in the editor
   still counts.
-- The file is read on **Apply** and again **every time the world loads**: the world save keeps
-  only the editor text. After recompiling, press Apply (or reload the world). If the file is
-  missing when the world loads, the block starts empty and the server log says why; the
-  editor text is kept.
-- On a multiplayer server the file has to be in the server's `roms` folder too.
+- The server reads the files, on **Apply** and again **every time the world loads**: the world
+  save keeps only the editor text. After recompiling, press Apply (or reload the world). The
+  editor shows the server's answer (byte count or error). If a file is missing when the world
+  loads, the block starts empty and the server log says why; the editor text is kept.
+- The save's `bins` folder travels with the save. If the server can't find the save (its log
+  says so at start-up), files are read from `Logic World/roms` instead.
+- The Trapdoor compiler writes `.bin` files: `clang-trapdoor.sh ... --save <save name>` puts the
+  program straight into that save's `bins` folder.
 
 ### Buttons
 

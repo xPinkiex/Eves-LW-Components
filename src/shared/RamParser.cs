@@ -31,11 +31,13 @@ using System.Text;
 //     @file kernel.hex
 //     @0x8000 @file data.bin
 //
-//   Relative paths are resolved against FileRoot, which the client and the
-//   server mod set to the "roms" folder in the Logic World folder; absolute
-//   paths work too. The file is read again on every Apply and every time
-//   the world loads (the world save keeps only the editor text), so after
-//   recompiling, press Apply or reload the world.
+//   Files are read by the server only: relative paths are resolved against
+//   the "bins" folder in the current save's folder (saves/<save>/bins), or
+//   against "roms" in the Logic World folder if the server can't find the
+//   save. Absolute paths work too. The editor sends text with @file to the
+//   server unparsed and shows the server's answer. The file is read again on
+//   every Apply and every time the world loads (the world save keeps only
+//   the editor text), so after recompiling, press Apply or reload the world.
 //
 // The data length is the end of the highest byte written (or the final
 // current address, if that is higher), so the order of @0x blocks doesn't
@@ -120,21 +122,26 @@ namespace EVE.Components.Shared
             }
         }
 
-        /// <summary>Folder that relative @file paths are resolved against. Set by the client and server mods.</summary>
+        /// <summary>Fallback folder for relative @file paths (Logic World/roms, see InitFileRoot).</summary>
         public static string FileRoot;
+
+        /// <summary>
+        /// Preferred folder for relative @file paths, asked on every use: the server sets it to the
+        /// current save's "bins" folder. Returning null falls back to FileRoot.
+        /// </summary>
+        public static Func<string> FileRootProvider;
 
         private const int MaxIncludeDepth = 8;
 
         /// <summary>
-        /// Sets FileRoot to the "roms" folder in the Logic World folder (two levels above the
-        /// mod's own folder, GameData/EVE_Components) and creates it if needed.
+        /// Sets FileRoot (the fallback) to the "roms" folder in the Logic World folder, two levels
+        /// above the mod's own folder (GameData/EVE_Components). Doesn't create it.
         /// </summary>
         public static void InitFileRoot(string modPath)
         {
             try
             {
                 FileRoot = Path.GetFullPath(Path.Combine(modPath, "..", "..", "roms"));
-                Directory.CreateDirectory(FileRoot);
             }
             catch
             {
@@ -180,7 +187,15 @@ namespace EVE.Components.Shared
         public static string ResolvePath(string path)
         {
             if (Path.IsPathRooted(path)) return path;
-            return Path.Combine(FileRoot ?? ".", path);
+            return Path.Combine(CurrentRoot() ?? ".", path);
+        }
+
+        /// <summary>The folder relative @file paths resolve against right now.</summary>
+        public static string CurrentRoot()
+        {
+            string root = null;
+            try { root = FileRootProvider?.Invoke(); } catch { }
+            return root ?? FileRoot;
         }
 
         // Parses `text` into `rom` starting at currentAddress. `end` is raised to the end of the

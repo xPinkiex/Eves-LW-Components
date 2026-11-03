@@ -4,6 +4,7 @@ using System.Text;
 using EVE.Components.Client.Keybindings;
 using EVE.Components.Shared;
 using EVE.Components.Shared.Packets.C2S;
+using EVE.Components.Shared.Packets.S2C;
 using EccsGuiBuilder.Client.Layouts.Elements;
 using EccsGuiBuilder.Client.Layouts.Helper;
 using EccsGuiBuilder.Client.Wrappers;
@@ -214,6 +215,25 @@ namespace EVE.Components.Client.Windows
             if (inputField == null) return;
 
             string text = inputField.text;
+
+            // @file: the server reads the files (from the save's "bins" folder) and answers with
+            // a RamResultPacket, shown by ShowServerResult.
+            if (RamParser.HasFileDirective(text))
+            {
+                _textCache[_targetAddress] = text;
+                if (statusLabel != null)
+                {
+                    statusLabel.text = "Loading files on the server...";
+                }
+                Instances.SendData.Send(new RamUpdatePacket()
+                {
+                    ComponentAddress = _targetAddress,
+                    RomData = null,
+                    SourceText = text,
+                });
+                return;
+            }
+
             var result = RamParser.Parse(text);
 
             if (!result.Success)
@@ -238,6 +258,15 @@ namespace EVE.Components.Client.Windows
                 RomData = result.Data,
                 SourceText = text,
             });
+        }
+
+        public static void ShowServerResult(RamResultPacket packet)
+        {
+            if (_instance == null || _instance.statusLabel == null) return;
+            if (!packet.ComponentAddress.Equals(_targetAddress)) return;
+            _instance.statusLabel.text = packet.Success
+                ? $"Bytes: {packet.ByteCount} (files loaded by the server)"
+                : $"Error: {packet.Error}";
         }
 
         private void OnClear()
