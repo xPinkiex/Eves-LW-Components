@@ -49,8 +49,30 @@ Press **X** while looking at a RAM or Microcode ROM block to open the editor.
 | `0xFF` | Hex byte(s), up to 8 digits (little-endian word semantics) |
 | `0b11001000` | Binary byte(s), up to 16 bits |
 | `@0xADDR` | Set current address (up to 4 hex digits) |
+| `@file PATH` | Load a file at the current address (`@file "PATH"` if it has spaces) |
 | `// comment` | Single-line comment (ignored) |
 | `# comment` | Single-line comment (ignored) |
+
+### Loading files (`@file`)
+
+For programs too big to paste. Put the file in the `roms` folder in the Logic World folder
+(created on first start; absolute paths work too) and write in the editor:
+
+```
+@file kernel.hex
+@0x8000 @file data.bin      // more files or bytes at other addresses
+```
+
+- `.bin` files are loaded as raw bytes. Any other file is read as text in the editor's own
+  format, so the Trapdoor assembler's `.hex` output loads as is. Included text can use `@0x`
+  and `@file` itself.
+- After a file, loading continues right after its last byte. Everything else in the editor
+  still counts.
+- The file is read on **Apply** and again **every time the world loads**: the world save keeps
+  only the editor text. After recompiling, press Apply (or reload the world). If the file is
+  missing when the world loads, the block starts empty and the server log says why; the
+  editor text is kept.
+- On a multiplayer server the file has to be in the server's `roms` folder too.
 
 ### Buttons
 

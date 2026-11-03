@@ -1,6 +1,7 @@
 using System;
 using EVE.Components.Client.Keybindings;
 using EVE.Components.Client.Windows;
+using EVE.Components.Shared;
 using EVE.Components.Shared.Packets.C2S;
 using EccsLogicWorldAPI.Client.Hooks;
 using FancyInput;
@@ -28,6 +29,7 @@ namespace EVE.Components.Client
         {
             Logger = base.Logger;
             Logger.Info("EVE_Components client mod loading");
+            RamParser.InitFileRoot(Files.Path);
 
             CustomInput.Register<RamContext, RamTrigger>("EVE_Components");
 

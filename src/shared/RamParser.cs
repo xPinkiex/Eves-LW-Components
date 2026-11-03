@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text;
 
 // ROM Input Format (for compiler/emitter reference):
@@ -14,9 +15,31 @@ using System.Text;
 //   0XFF            (case-insensitive prefix)
 //   0b11001000      binary byte(s) (up to 16 bits → 2 bytes)
 //   @0xADDR         set current address (4 hex digits max, 0–65535)
+//   @file PATH      load a file at the current address (see below)
 //   // comment      single-line comment (ignored until newline)
 //   #  comment      single-line comment (ignored until newline)
 //
+// @file PATH (or @file "PATH WITH SPACES"):
+//
+//   A file ending in .bin is copied in as raw bytes. Any other file is read
+//   as text in this same format, so the assembler's .hex output works as is
+//   (its 0xNNNNNNNN words and // comments). Included text may itself use @0x
+//   and @file (up to 8 levels deep). Afterwards the current address is the
+//   address after the included data, and everything else in the editor still
+//   counts, so a kernel and a data blob can be combined:
+//
+//     @file kernel.hex
+//     @0x8000 @file data.bin
+//
+//   Relative paths are resolved against FileRoot, which the client and the
+//   server mod set to the "roms" folder in the Logic World folder; absolute
+//   paths work too. The file is read again on every Apply and every time
+//   the world loads (the world save keeps only the editor text), so after
+//   recompiling, press Apply or reload the world.
+//
+// The data length is the end of the highest byte written (or the final
+// current address, if that is higher), so the order of @0x blocks doesn't
+// matter.
 // Multi-byte hex tokens — little-endian word semantics:
 //
 //   A 0x token may contain up to 8 hex digits.  The digit string is
@@ -97,6 +120,34 @@ namespace EVE.Components.Shared
             }
         }
 
+        /// <summary>Folder that relative @file paths are resolved against. Set by the client and server mods.</summary>
+        public static string FileRoot;
+
+        private const int MaxIncludeDepth = 8;
+
+        /// <summary>
+        /// Sets FileRoot to the "roms" folder in the Logic World folder (two levels above the
+        /// mod's own folder, GameData/EVE_Components) and creates it if needed.
+        /// </summary>
+        public static void InitFileRoot(string modPath)
+        {
+            try
+            {
+                FileRoot = Path.GetFullPath(Path.Combine(modPath, "..", "..", "roms"));
+                Directory.CreateDirectory(FileRoot);
+            }
+            catch
+            {
+                // Leave whatever was resolved; a missing folder just shows up as "not found".
+            }
+        }
+
+        /// <summary>True if the text contains an @file directive (outside comments is not checked).</summary>
+        public static bool HasFileDirective(string text)
+        {
+            return text != null && text.IndexOf("@file", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
         public static ParseResult Parse(string text)
         {
             if (string.IsNullOrWhiteSpace(text))
@@ -106,8 +157,40 @@ namespace EVE.Components.Shared
 
             var rom = new byte[65536];
             int currentAddress = 0;
-            int tokenIndex = 0;
+            int end = 0;
+            string error = ParseInto(text, rom, ref currentAddress, ref end, 0, null);
+            if (error != null)
+            {
+                return new ParseResult { Success = false, Error = error };
+            }
 
+            int actualLength = Math.Max(currentAddress, end);
+            byte[] result = new byte[actualLength];
+            Array.Copy(rom, result, actualLength);
+
+            return new ParseResult
+            {
+                Success = true,
+                Data = result,
+                ByteCount = actualLength,
+            };
+        }
+
+        /// <summary>Resolves an @file path: absolute as is, relative against FileRoot.</summary>
+        public static string ResolvePath(string path)
+        {
+            if (Path.IsPathRooted(path)) return path;
+            return Path.Combine(FileRoot ?? ".", path);
+        }
+
+        // Parses `text` into `rom` starting at currentAddress. `end` is raised to the end of the
+        // highest byte written. `source` names the file being parsed (null for the editor), for
+        // error messages. Returns null on success, otherwise the error.
+        private static string ParseInto(string text, byte[] rom, ref int currentAddress, ref int end,
+                                         int depth, string source)
+        {
+            string at = source == null ? "" : $" in {source}";
+            int tokenIndex = 0;
             int i = 0;
             int len = text.Length;
 
@@ -130,13 +213,41 @@ namespace EVE.Components.Shared
                 if (text[i] == '@')
                 {
                     i++;
+                    if (i + 4 <= len && string.Compare(text, i, "file", 0, 4, StringComparison.OrdinalIgnoreCase) == 0
+                        && (i + 4 == len || char.IsWhiteSpace(text[i + 4]) || text[i + 4] == '"'))
+                    {
+                        i += 4;
+                        while (i < len && (text[i] == ' ' || text[i] == '\t'))
+                            i++;
+                        string path;
+                        if (i < len && text[i] == '"')
+                        {
+                            int close = text.IndexOf('"', i + 1);
+                            if (close < 0)
+                                return $"Missing closing '\"' after @file at token #{tokenIndex}{at}";
+                            path = text.Substring(i + 1, close - i - 1);
+                            i = close + 1;
+                        }
+                        else
+                        {
+                            int start = i;
+                            while (i < len && !char.IsWhiteSpace(text[i]))
+                                i++;
+                            path = text.Substring(start, i - start);
+                        }
+                        if (path.Length == 0)
+                            return $"Expected a file name after @file at token #{tokenIndex}{at}";
+                        // LoadFile's errors already name the file they come from.
+                        string error = LoadFile(path, rom, ref currentAddress, ref end, depth + 1);
+                        if (error != null)
+                            return error;
+                        tokenIndex++;
+                        continue;
+                    }
+
                     if (i + 2 > len || text[i] != '0' || (text[i + 1] != 'x' && text[i + 1] != 'X'))
                     {
-                        return new ParseResult
-                        {
-                            Success = false,
-                            Error = $"Expected '0x' after '@' at token #{tokenIndex}",
-                        };
+                        return $"Expected '0x' or 'file' after '@' at token #{tokenIndex}{at}";
                     }
                     i += 2;
                     int addr = 0;
@@ -148,11 +259,7 @@ namespace EVE.Components.Shared
                         i++;
                         if (hexDigits > 4)
                         {
-                            return new ParseResult
-                            {
-                                Success = false,
-                                Error = $"Address too large at token #{tokenIndex}",
-                            };
+                            return $"Address too large at token #{tokenIndex}{at}";
                         }
                     }
                     currentAddress = addr;
@@ -169,19 +276,11 @@ namespace EVE.Components.Shared
                     int digits = i - digitStart;
                     if (digits == 0)
                     {
-                        return new ParseResult
-                        {
-                            Success = false,
-                            Error = $"Expected hex digits after '0x' at token #{tokenIndex}",
-                        };
+                        return $"Expected hex digits after '0x' at token #{tokenIndex}{at}";
                     }
                     if (digits > 8)
                     {
-                        return new ParseResult
-                        {
-                            Success = false,
-                            Error = $"Hex value too large (max 8 digits) at token #{tokenIndex}",
-                        };
+                        return $"Hex value too large (max 8 digits) at token #{tokenIndex}{at}";
                     }
                     int byteCount = (digits + 1) / 2;
                     for (int b = 0; b < byteCount; b++)
@@ -190,16 +289,10 @@ namespace EVE.Components.Shared
                         int hiPos = loPos - 1;
                         int lo = (loPos >= 0) ? HexValue(text[digitStart + loPos]) : 0;
                         int hi = (hiPos >= 0) ? HexValue(text[digitStart + hiPos]) : 0;
-                        if (currentAddress >= rom.Length)
+                        if (!Put(rom, ref currentAddress, ref end, (byte)((hi << 4) | lo)))
                         {
-                            return new ParseResult
-                            {
-                                Success = false,
-                                Error = $"Address {currentAddress} exceeds 65535 at token #{tokenIndex}",
-                            };
+                            return $"Address {currentAddress} exceeds 65535 at token #{tokenIndex}{at}";
                         }
-                        rom[currentAddress] = (byte)((hi << 4) | lo);
-                        currentAddress++;
                     }
                     tokenIndex++;
                     continue;
@@ -217,31 +310,17 @@ namespace EVE.Components.Shared
                         i++;
                         if (digits > 8)
                         {
-                            return new ParseResult
-                            {
-                                Success = false,
-                                Error = $"Binary value too large at token #{tokenIndex}",
-                            };
+                            return $"Binary value too large at token #{tokenIndex}{at}";
                         }
                     }
                     if (digits == 0)
                     {
-                        return new ParseResult
-                        {
-                            Success = false,
-                            Error = $"Expected binary digits after '0b' at token #{tokenIndex}",
-                        };
+                        return $"Expected binary digits after '0b' at token #{tokenIndex}{at}";
                     }
-                    if (currentAddress >= rom.Length)
+                    if (!Put(rom, ref currentAddress, ref end, (byte)val))
                     {
-                        return new ParseResult
-                        {
-                            Success = false,
-                            Error = $"Address {currentAddress} exceeds 65535 at token #{tokenIndex}",
-                        };
+                        return $"Address {currentAddress} exceeds 65535 at token #{tokenIndex}{at}";
                     }
-                    rom[currentAddress] = (byte)val;
-                    currentAddress++;
                     tokenIndex++;
                     continue;
                 }
@@ -249,16 +328,45 @@ namespace EVE.Components.Shared
                 i++;
             }
 
-            int actualLength = currentAddress;
-            byte[] result = new byte[actualLength];
-            Array.Copy(rom, result, actualLength);
+            return null;
+        }
 
-            return new ParseResult
+        private static string LoadFile(string path, byte[] rom, ref int currentAddress, ref int end, int depth)
+        {
+            if (depth > MaxIncludeDepth)
+                return $"@file {path}: nested more than {MaxIncludeDepth} levels deep (does a file include itself?)";
+
+            string full = ResolvePath(path);
+            byte[] bytes;
+            try
             {
-                Success = true,
-                Data = result,
-                ByteCount = actualLength,
-            };
+                if (!File.Exists(full))
+                    return $"@file {path}: not found (looked for {full})";
+                bytes = File.ReadAllBytes(full);
+            }
+            catch (Exception e)
+            {
+                return $"@file {path}: {e.Message}";
+            }
+
+            if (full.EndsWith(".bin", StringComparison.OrdinalIgnoreCase))
+            {
+                if (currentAddress + bytes.Length > rom.Length)
+                    return $"@file {path}: {bytes.Length} bytes at address {currentAddress} go past 65535";
+                foreach (byte b in bytes)
+                    Put(rom, ref currentAddress, ref end, b);
+                return null;
+            }
+
+            return ParseInto(Encoding.UTF8.GetString(bytes), rom, ref currentAddress, ref end, depth, path);
+        }
+
+        private static bool Put(byte[] rom, ref int currentAddress, ref int end, byte value)
+        {
+            if (currentAddress >= rom.Length) return false;
+            rom[currentAddress++] = value;
+            if (currentAddress > end) end = currentAddress;
+            return true;
         }
 
         private static bool IsHexDigit(char c)

@@ -137,6 +137,14 @@ namespace EVE.Components.Server
                     _sourceText = text;
                     _romData = result.Data;
                 }
+                else if (!result.Success && RamParser.HasFileDirective(text))
+                {
+                    // An @file whose file is missing or broken: keep the text (so the next save
+                    // doesn't replace it with the text's own bytes) and start empty.
+                    _sourceText = text;
+                    _romData = new byte[0];
+                    RamServer.Logger?.Error($"EVE_Components: RAM could not load its file: {result.Error}");
+                }
             }
 
             _originalData = (byte[])_romData.Clone();

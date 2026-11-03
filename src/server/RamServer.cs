@@ -9,6 +9,7 @@ using LogicAPI.Server.Managers;
 using LogicLog;
 using LogicWorld.LogicCode;
 using LogicWorld.Server.Circuitry;
+using EVE.Components.Shared;
 using EVE.Components.Shared.Packets.C2S;
 
 namespace EVE.Components.Server
@@ -23,6 +24,8 @@ namespace EVE.Components.Server
         {
             Logger = base.Logger;
             Logger.Info("EVE_Components server mod loading");
+            RamParser.InitFileRoot(Files.Path);
+            Logger.Info($"EVE_Components: @file paths are relative to {RamParser.FileRoot}");
 
             RawPacketHandlerInjector.addPacketHandler(new RamUpdateHandler(this));
             RawPacketHandlerInjector.addPacketHandler(new RomActionHandler(this));
