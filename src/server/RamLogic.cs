@@ -8,13 +8,13 @@ namespace EVE.Components.Server
 {
     public class RamLogic : LogicComponent
     {
-        private byte[] _romData = new byte[0];
+        protected byte[] _romData = new byte[0];
         private byte[] _originalData = new byte[0];
         private string _sourceText = null;
         private string _originalSourceText = null;
         private bool _skipNextDeserialize;
 
-        private bool _prevWriteEnable;
+        protected bool _prevWriteEnable;
 
         public const int InputCount = 25;
         public const int WEIndex = 16;       // write enable
@@ -91,7 +91,7 @@ namespace EVE.Components.Server
             }
         }
 
-        private void WriteByte(int address, byte value)
+        protected void WriteByte(int address, byte value)
         {
             if (address >= 65536)
             {

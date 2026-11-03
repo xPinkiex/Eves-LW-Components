@@ -11,6 +11,14 @@ Custom components for Logic World.
 - Rising edge of write-enable latches data-in at the addressed byte
 - Source text is persisted in the world save
 
+### Eve's RAM (32-bit)
+RAM with a 32-bit byte address and 32-bit data bus. Every access is a dword (little-endian, any alignment); decode the address and pick bytes with your own logic.
+
+- 32 address input pegs, 32 data output pegs, 32 data input pegs, 1 write-enable peg
+- Output is always the 4 bytes starting at the address; rising edge of write-enable replaces those 4 bytes
+- Backing memory is 64 KiB (the editor limit): bytes at addresses of 65536 and above read as 0 and are not written. Same editor and save/restore as Eve's RAM
+- Pegs: all rows have bit 31 (MSB) on the left. Row 1 address, row 2 write data, row 3 write enable (far left)
+
 ### Eve's Microcode ROM
 32-bit microcode ROM with address-based dword read/write. Includes an in-game text editor.
 

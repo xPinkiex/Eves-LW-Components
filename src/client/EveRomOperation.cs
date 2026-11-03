@@ -20,11 +20,12 @@ namespace EVE.Components.Client
                 return false;
             }
             ComponentType ramType = Instances.MainWorld.ComponentTypes.GetComponentType("EVE_Components.ProgramRAM");
+            ComponentType ram32Type = Instances.MainWorld.ComponentTypes.GetComponentType("EVE_Components.ProgramRAM32");
             ComponentType microType = Instances.MainWorld.ComponentTypes.GetComponentType("EVE_Components.MicrocodeROM");
             foreach (ComponentAddress componentAddress in selection)
             {
                 ComponentType type = Instances.MainWorld.Data.Lookup(componentAddress).Data.Type;
-                if (type != ramType && type != microType)
+                if (type != ramType && type != ram32Type && type != microType)
                 {
                     return false;
                 }
