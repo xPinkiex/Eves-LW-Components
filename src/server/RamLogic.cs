@@ -6,15 +6,15 @@ using LogicLog;
 
 namespace EVE.Components.Server
 {
-    public class RamLogic : LogicComponent
+    public class RamLogic : LogicComponent, IRomHost
     {
-        protected byte[] _romData = new byte[0];
+        private byte[] _romData = new byte[0];
         private byte[] _originalData = new byte[0];
         private string _sourceText = null;
         private string _originalSourceText = null;
         private bool _skipNextDeserialize;
 
-        protected bool _prevWriteEnable;
+        private bool _prevWriteEnable;
 
         public const int InputCount = 25;
         public const int WEIndex = 16;       // write enable
@@ -91,7 +91,7 @@ namespace EVE.Components.Server
             }
         }
 
-        protected void WriteByte(int address, byte value)
+        private void WriteByte(int address, byte value)
         {
             if (address >= 65536)
             {
