@@ -2,6 +2,8 @@
 
 Custom components for Logic World.
 
+**Documentation:** [`docs/index.html`](docs/index.html), a page per component with its pins drawn, how it behaves and how to use it (open the files in a browser; they need nothing else).
+
 ## Components
 
 ### Eve's RAM

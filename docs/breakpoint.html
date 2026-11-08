@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eve's Breakpoint · Eve's Components</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><div><a href="index.html">Overview</a><a href="ram.html">Eve's RAM</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html">The ROM editor</a><a href="serial-port.html">Eve's Serial Port</a><a href="relay.html">Normally-Closed Relay</a><a href="breakpoint.html" class="here">Eve's Breakpoint</a></div></nav>
+<main>
+<h1>Eve's Breakpoint</h1>
+<p class="sub">Pauses the simulation when its input goes from low to high, within one tick at any simulation speed. Wire it to a halt signal, a flag, or any condition you want to catch.</p>
+<h2>Pin</h2>
+<p>One input peg on top. No outputs.</p>
+
+<h2>Behaviour</h2>
+<ul>
+  <li><b>Edge-triggered:</b> it pauses on the low-to-high transition only, and won't pause again while the signal stays high.</li>
+  <li>The simulation stays paused until you resume it: the pause/play button, or <code>simulation.resume</code> in the console.
+    Single-stepping still works while paused.</li>
+  <li>It logs <code>Breakpoint hit!</code> to the console.</li>
+</ul>
+
+<h2>Pausing within one tick</h2>
+<p>Logic World runs ticks in catch-up batches: each frame runs as many ticks as needed to keep up with the speed you set. On its
+own it checks the pause only once per batch, so at high speeds a pause from inside a tick would come many ticks late. The
+mod patches the simulation loop (with HarmonyForLogicWorld) to check again after every tick, so the breakpoint stops the
+simulation on the very tick its input rose, whatever the speed.</p>
+</main>
+<footer>Eve's Components, a Logic World mod. These pages are in the mod's <code>docs/</code> folder.</footer>
+</body>
+</html>

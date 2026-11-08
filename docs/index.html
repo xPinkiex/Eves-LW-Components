@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eve's Components · Eve's Components</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><div><a href="index.html" class="here">Overview</a><a href="ram.html">Eve's RAM</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html">The ROM editor</a><a href="serial-port.html">Eve's Serial Port</a><a href="relay.html">Normally-Closed Relay</a><a href="breakpoint.html">Eve's Breakpoint</a></div></nav>
+<main>
+<h1>Eve's Components</h1>
+<p class="sub">Custom components for Logic World, made for building CPUs: memory with an in-game editor, a microcode ROM, a serial port to the network, and debugging help.</p>
+<div class="cards">
+  <a class="card" href="ram.html"><b><span class="swatch" style="background:#FF8800"></span>Eve's RAM</b><p>64 KB, byte-wide, 16 address bits. Loaded from the editor or a file.</p></a>
+  <a class="card" href="microcode-rom.html"><b><span class="swatch" style="background:#88CCFF"></span>Eve's Microcode ROM</b><p>32-bit words, 16 address bits. For control words.</p></a>
+  <a class="card" href="serial-port.html"><b><span class="swatch" style="background:#3388CC"></span>Eve's Serial Port</b><p>A byte stream between the circuit and a TCP connection: terminals, networking.</p></a>
+  <a class="card" href="relay.html"><b><span class="swatch" style="background:#2B4D7E"></span>Normally-Closed Relay</b><p>Connects two pegs unless its control is high.</p></a>
+  <a class="card" href="breakpoint.html"><b><span class="swatch" style="background:#CC3333"></span>Eve's Breakpoint</b><p>Pauses the simulation within one tick of a rising edge.</p></a>
+  <a class="card" href="editor.html"><b>The ROM editor</b><p>Press X at a RAM or ROM: hex and binary bytes, addresses, files.</p></a>
+</div>
+
+<h2>Installing</h2>
+<ol>
+  <li>Copy the mod's folder (<code>EVE_Components</code>) into <code>Logic World/GameData</code>.</li>
+  <li>Install its dependencies the same way:
+    <a href="https://github.com/Ecconia/Ecconia-LogicWorld-Mods">EccsLogicWorldAPI and HarmonyForLogicWorld</a>.</li>
+  <li>Start Logic World. It compiles the mod at start-up, so restart it after updating the mod.</li>
+</ol>
+<p>The components are in the build menu under <b>Eve's Components</b>, in three groups: <b>Memory</b> (RAM, Microcode ROM),
+<b>Other</b> (Serial Port, Normally-Closed Relay) and <b>Debug</b> (Breakpoint).</p>
+
+<h2>Conventions</h2>
+<ul>
+  <li><b>Inputs are on the back face, outputs on the front face</b> of the wide blocks.</li>
+  <li><b>Edges:</b> writes happen on the rising edge of a write pin. Reads are always live: the outputs follow the
+    address, without a read pin.</li>
+  <li><b>Bit order in the drawings:</b> each pin page shows every peg at its position in the block, with its name and its index
+    in the code.</li>
+  <li><b>Saving:</b> memory blocks keep the text you typed in the editor with the world, not a copy of the bytes. Files named
+    with <code>@file</code> are read again every time the world loads (<a href="editor.html">the editor</a>).</li>
+</ul>
+</main>
+<footer>Eve's Components, a Logic World mod. These pages are in the mod's <code>docs/</code> folder.</footer>
+</body>
+</html>

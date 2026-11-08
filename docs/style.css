@@ -1,0 +1,56 @@
+/* Eve's Components documentation: one stylesheet for every page. */
+:root {
+  --bg: #fbfaf8; --fg: #1d1d1f; --muted: #5f6368; --line: #e2e0dc; --card: #ffffff;
+  --accent: #2f78c4; --in: #2f78c4; --out: #c26a1f; --code: #f2f0ec;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17181a; --fg: #e8e6e3; --muted: #9a9ea4; --line: #2e3034; --card: #1e2023;
+    --accent: #6ea8ff; --in: #6ea8ff; --out: #f0a050; --code: #26282c;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg);
+       font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+nav { border-bottom: 1px solid var(--line); background: var(--card); }
+nav div { max-width: 980px; margin: 0 auto; padding: 10px 24px; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+nav a { color: var(--muted); text-decoration: none; font-size: 14.5px; }
+nav a:hover, nav a.here { color: var(--fg); }
+nav a.here { font-weight: 600; }
+main { max-width: 980px; margin: 0 auto; padding: 32px 24px 80px; }
+h1 { font-size: 30px; margin: 0 0 4px; }
+h2 { font-size: 22px; margin: 40px 0 12px; padding-top: 8px; border-top: 1px solid var(--line); }
+h3 { font-size: 17px; margin: 22px 0 8px; }
+a { color: var(--accent); }
+.sub { color: var(--muted); margin: 0 0 24px; }
+code, .mono { font-family: ui-monospace, "JetBrains Mono", Consolas, monospace; font-size: 0.92em; }
+code { background: var(--code); padding: 1px 5px; border-radius: 4px; }
+pre { background: var(--code); padding: 12px 14px; border-radius: 8px; overflow-x: auto; margin: 10px 0; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 10px 0 6px; font-size: 15px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.in { color: var(--in); font-weight: 600; }
+.out { color: var(--out); font-weight: 600; }
+.note { border-left: 3px solid var(--accent); padding: 6px 14px; margin: 14px 0; background: var(--card); border-radius: 0 8px 8px 0; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 18px 0; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; }
+.card b { display: block; margin-bottom: 4px; }
+.card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+a.card { text-decoration: none; color: inherit; }
+a.card:hover { border-color: var(--accent); }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+.diagram { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 12px 0; overflow-x: auto; }
+.diagram p { margin: 6px 4px 0; font-size: 14px; color: var(--muted); }
+.diagram b { display: block; margin: 4px 4px 0; }
+.diagram svg { display: block; max-width: 100%; height: auto; }
+svg text { font-family: ui-monospace, Consolas, monospace; fill: currentColor; }
+svg .pin-in { fill: var(--in); }
+svg .pin-out { fill: var(--out); }
+svg .face-in { fill: none; stroke: var(--in); stroke-width: 2; }
+svg .face-out { fill: none; stroke: var(--out); stroke-width: 2; }
+svg .idx, svg .dim { fill: var(--muted); }
+ul { padding-left: 22px; } li { margin: 3px 0; }
+.muted { color: var(--muted); }
+footer { max-width: 980px; margin: 0 auto; padding: 0 24px 40px; color: var(--muted); font-size: 14px; }

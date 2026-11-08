@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eve's Normally-Closed Relay · Eve's Components</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><div><a href="index.html">Overview</a><a href="ram.html">Eve's RAM</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html">The ROM editor</a><a href="serial-port.html">Eve's Serial Port</a><a href="relay.html" class="here">Normally-Closed Relay</a><a href="breakpoint.html">Eve's Breakpoint</a></div></nav>
+<main>
+<h1>Eve's Normally-Closed Relay</h1>
+<p class="sub">A relay that connects its two pegs by default and disconnects them while its control input is high: the inverse of Logic World's relay.</p>
+<h2>Pegs</h2>
+<table>
+  <thead><tr><th>Peg</th><th>Where</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td class="num">0</td><td>Top</td><td>Control: <b>low</b> = closed (connected), <b>high</b> = open.</td></tr>
+    <tr><td class="num">1</td><td>Back face</td><td rowspan="2">The switched connection. While closed, the two pegs are joined into one network: a signal
+      passes both ways, as through a vanilla relay.</td></tr>
+    <tr><td class="num">2</td><td>Front face</td></tr>
+  </tbody>
+</table>
+<p>The block is 1 wide, 1 high and 2 deep. Only a change of the control input makes it switch.</p>
+<div class="note">Useful where something must be connected unless told otherwise: a default bus driver, a reset path, or
+replacing a relay plus an inverter.</div>
+</main>
+<footer>Eve's Components, a Logic World mod. These pages are in the mod's <code>docs/</code> folder.</footer>
+</body>
+</html>

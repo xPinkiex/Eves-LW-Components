@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The ROM editor · Eve's Components</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><div><a href="index.html">Overview</a><a href="ram.html">Eve's RAM</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html" class="here">The ROM editor</a><a href="serial-port.html">Eve's Serial Port</a><a href="relay.html">Normally-Closed Relay</a><a href="breakpoint.html">Eve's Breakpoint</a></div></nav>
+<main>
+<h1>The ROM editor</h1>
+<p class="sub">Press X while looking at Eve's RAM or Eve's Microcode ROM to fill it: bytes typed or pasted, addresses, and files from the save.</p>
+<h2>Syntax</h2>
+<table>
+  <thead><tr><th>Token</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">0xFF</td><td>Hex bytes, up to 8 digits. More than 2 digits are 16-bit words stored least significant byte
+      first: <code>0x00FF</code> → <code>FF 00</code>, <code>0xDEADBEEF</code> → <code>EF BE AD DE</code>. An odd digit count is
+      padded on the left.</td></tr>
+    <tr><td class="mono">0b11001000</td><td>Binary, up to 16 bits (two bytes, the same order).</td></tr>
+    <tr><td class="mono">@0xADDR</td><td>Continue at this byte address (up to 4 hex digits).</td></tr>
+    <tr><td class="mono">@file PATH</td><td>Load a file here (<code>@file "PATH"</code> if it has spaces).</td></tr>
+    <tr><td class="mono">// text</td><td>A comment, to the end of the line.</td></tr>
+    <tr><td class="mono"># text</td><td>Also a comment.</td></tr>
+  </tbody>
+</table>
+<p>Bytes go one after another from address 0, or from the last <code>@0x</code>. The contents end at the highest byte written, so
+the order of the blocks doesn't matter.</p>
+<pre><code>0x01 0b11001000 0xFF      // three bytes at 0
+@0x0100
+0x1234                    // 34 12 at 0x100</code></pre>
+
+<h2>Files: <code>@file</code></h2>
+<p>For programs too big to paste. Put the file in the save's <code>bins</code> folder,
+<code>Logic World/saves/&lt;save&gt;/bins</code>, and write:</p>
+<pre><code>@file kernel.bin
+@0x8000 @file data.bin      // more files, or bytes, elsewhere</code></pre>
+<ul>
+  <li><b><code>.bin</code> files</b> are copied in as raw bytes.</li>
+  <li><b>Any other file</b> is read as text in the editor's format, and may itself use <code>@0x</code> and <code>@file</code>
+    (up to 8 levels).</li>
+  <li><b>After a file</b>, loading continues right after its last byte.</li>
+  <li><b>Paths:</b> relative ones are looked up in the save's <code>bins</code> folder, or in <code>Logic World/roms</code> if the
+    server can't find the save. Absolute paths work too.</li>
+  <li><b>When files are read:</b> on <b>Apply</b> and again every time the world loads, because the world keeps only the editor
+    text. After rebuilding a program, press Apply or reload the world. The editor shows the server's answer: the byte count, or
+    an error.</li>
+  <li><b>A missing file</b> leaves the block empty when the world loads. The server log says why, and the text is kept.</li>
+  <li><b>One file fills at most one 64 KB block.</b></li>
+</ul>
+
+<h2>Buttons</h2>
+<table>
+  <tbody>
+    <tr><td><b>Apply</b></td><td>Parse the text and load it into the block.</td></tr>
+    <tr><td><b>Clear</b></td><td>Empty the block and the text.</td></tr>
+    <tr><td><b>Save</b></td><td>Store the current text with the world. The circuit's writes are dropped.</td></tr>
+    <tr><td><b>Restore</b></td><td>Go back to the last saved state.</td></tr>
+  </tbody>
+</table>
+<p class="muted">The key is <b>X</b> by default; change it under Controls, "Mod: Eve's Components".</p>
+</main>
+<footer>Eve's Components, a Logic World mod. These pages are in the mod's <code>docs/</code> folder.</footer>
+</body>
+</html>
