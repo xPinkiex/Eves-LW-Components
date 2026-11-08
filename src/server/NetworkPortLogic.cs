@@ -17,7 +17,8 @@ namespace EVE.Components.Server
     ///          edge samples 0-15), 17 RD_DATA (high then low: the byte shown was
     ///          read, show the next), 18 RD_STATUS (high then low: HUP and ECODE
     ///          were seen, clear them).
-    /// Outputs: 0-7 the received byte, 8 READY, 9 CONN, 10 LSN, 11 ROOM, 12 HUP
+    /// Outputs, only while RD_DATA or RD_STATUS is high (else all low, so they can
+    /// go straight onto a shared bus): 0-7 the received byte, 8 READY, 9 CONN, 10 LSN, 11 ROOM, 12 HUP
     ///          (the other side closed the connection, or it broke, since the last
     ///          status read; not our own HANGUP or close), 13-15 ECODE
     ///          (the last error since the last status read).
@@ -91,7 +92,9 @@ namespace EVE.Components.Server
             _prevRdData = rdData;
             _prevRdStatus = rdStatus;
 
-            if (_shown < 0 && _rx.TryDequeue(out byte next))
+            // A new byte is shown only between reads: one arriving while RD_DATA is
+            // high would be taken when it falls without the circuit having seen it.
+            if (_shown < 0 && !rdData && _rx.TryDequeue(out byte next))
             {
                 Interlocked.Decrement(ref _rxCount);
                 _shown = next;
@@ -104,6 +107,8 @@ namespace EVE.Components.Server
                          | (Volatile.Read(ref _txCount) < QueueLimit ? 1 << ROOM : 0)
                          | (Volatile.Read(ref _hup) != 0 ? 1 << HUP : 0)
                          | (Volatile.Read(ref _ecode) & 7) << ECODE;
+            if (!rdData && !rdStatus)
+                status = 0;                     // not being read: the pins stay low
             for (int i = 0; i < 16; i++)
                 Outputs[i].On = (status & (1 << i)) != 0;
 

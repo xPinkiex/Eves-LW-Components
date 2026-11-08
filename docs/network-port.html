@@ -25,7 +25,10 @@ queues and the socket. The pins only touch the queues, so the circuit never wait
   <li><b>Writing:</b> put a value on inputs 0–15 and raise <b>WR</b>. The block samples all 16 on the rising edge, like the RAM's
     write enable: the data can arrive in the same tick as WR. Bits 0–7 are a byte; the control bits in 8–15 say what to do
     with it.</li>
-  <li><b>Reading:</b> outputs 0–15 always show the status. Bits 0–7 are the received byte, valid while READY is high.</li>
+  <li><b>Reading:</b> outputs 0–15 show the value only while <b>RD_DATA</b> or <b>RD_STATUS</b> is high, and are all low otherwise.
+    So they can go straight onto a shared data bus, with no buffers. Bits 0–7 are the received byte, valid while READY is
+    high; bits 8–15 the status. The value appears one tick after the strobe rises (like Eve's RAM after an address change), so
+    latch it after that.</li>
   <li><b>Taking the byte:</b> pulse <b>RD_DATA</b>, high and low again. While it's high the byte stays on the pins; when it
     falls, the next byte is shown, or READY goes low.</li>
   <li><b>Acknowledging events:</b> pulse <b>RD_STATUS</b>. When it falls, the sticky bits HUP and ECODE clear, so a short
@@ -167,10 +170,11 @@ queues and the socket. The pins only touch the queues, so the circuit never wait
   <tbody>
     <tr><td class="num">16</td><td class="in">WR</td><td class="mono">WR</td><td><b>Write. Rising edge:</b> inputs 0–15 are sampled and
       acted on (send, command character, hang-up).</td></tr>
-    <tr><td class="num">17</td><td class="in">RD_DATA</td><td class="mono">RDD</td><td><b>Read data. High, then low:</b> the received byte on outputs 0–7
-      has been read. While it is high the byte stays on the pins; when it falls, the next byte is shown, or READY goes low.</td></tr>
-    <tr><td class="num">18</td><td class="in">RD_STATUS</td><td class="mono">RDS</td><td><b>Read status. High, then low:</b> the status has been read. When it
-      falls, the sticky HUP and ECODE bits clear. Nothing else changes; the byte stays.</td></tr>
+    <tr><td class="num">17</td><td class="in">RD_DATA</td><td class="mono">RDD</td><td><b>Read data. High:</b> the outputs show the value, the received
+      byte included. <b>Then low:</b> that byte has been read; the next one is shown at the next read, or READY is low. A byte
+      arriving while it is high waits for the next read.</td></tr>
+    <tr><td class="num">18</td><td class="in">RD_STATUS</td><td class="mono">RDS</td><td><b>Read status. High:</b> the outputs show the same value.
+      <b>Then low:</b> the sticky HUP and ECODE bits clear. Nothing else changes; the byte stays.</td></tr>
   </tbody>
 </table>
 <p class="muted">All three sit on the upper row of the back face, at the far left: WR, RDD, RDS.</p>
@@ -190,7 +194,7 @@ queues and the socket. The pins only touch the queues, so the circuit never wait
       3 host not found, 4 connection refused, 5 timeout, 6 other.</td></tr>
   </tbody>
 </table>
-<p class="muted">The outputs are refreshed every tick.</p>
+<p class="muted">Driven only while RD_DATA or RD_STATUS is high, refreshed every tick; both strobes give the same value.</p>
 
 <h2>Commands</h2>
 <p>Write the characters with CMD set, one write each, ending with a newline (<code>\n</code>) or a carriage return (<code>\r</code>). A
@@ -218,13 +222,14 @@ new <code>listen</code> or <code>connect</code> first closes whatever was open.<
   </tbody>
 </table>
 <ul>
-  <li><b>Inputs 0–15</b> ← data bus bits 0–15. <b>Outputs 0–15</b> → data bus bits 0–15, for a read of either register.</li>
+  <li><b>Inputs 0–15</b> ← data bus bits 0–15. <b>Outputs 0–15</b> → data bus bits 0–15 directly: the block drives them only while
+    one of its read strobes is high, so a read of either register puts the value on the bus and they are low otherwise.</li>
   <li><b>WR</b> ← write AND select (either register).</li>
   <li><b>RD_DATA</b> ← read AND select AND NOT A1. <b>RD_STATUS</b> ← read AND select AND A1. Address bit 1 tells the two
     registers apart.</li>
   <li><b>Access size:</b> 16 bits. A 32-bit access at offset 0 would cover both registers and pulse both strobes, so programs use
     16-bit loads and stores. If your bus writes 16 bits as two byte writes, WR must fire once per write.</li>
-  <li><b>Timing:</b> hold RD high while the CPU latches the data, then drop it.</li>
+  <li><b>Timing:</b> the value appears one tick after RD rises; latch it after that, then drop RD.</li>
 </ul>
 <p>A program then:</p>
 <ol>
