@@ -14,18 +14,18 @@
 <div class="cards">
   <div class="card"><b>Listen</b><p>A terminal (<code>lwterm.py</code>, <code>nc</code>) or a web browser connects to the block, one at a time.</p></div>
   <div class="card"><b>Connect</b><p>The circuit opens a connection out, to any host and port.</p></div>
-  <div class="card"><b>One word in, one word out</b><p>Write a word: a data byte and control bits. Read a word: a received byte and status bits.</p></div>
+  <div class="card"><b>16 bits in, 16 bits out</b><p>Write a data byte with control bits. Read a received byte with status bits.</p></div>
 </div>
 
 <h2>How it works</h2>
 <p>The block keeps two queues of 4,096 bytes each, one for each direction. A thread on the game server moves bytes between the
-queues and the socket. The pins only touch the queues, so the circuit never waits for the network. Everything is a 16-bit
-word, input <i>n</i> or output <i>n</i> being bit <i>n</i>:</p>
+queues and the socket. The pins only touch the queues, so the circuit never waits for the network. Both directions are a
+16-bit value, input <i>n</i> or output <i>n</i> being bit <i>n</i>:</p>
 <ul>
-  <li><b>Writing:</b> put a word on inputs 0–15 and raise <b>WR</b>. The block samples all 16 on the rising edge, like the RAM's
+  <li><b>Writing:</b> put a value on inputs 0–15 and raise <b>WR</b>. The block samples all 16 on the rising edge, like the RAM's
     write enable: the data can arrive in the same tick as WR. Bits 0–7 are a byte; the control bits in 8–15 say what to do
     with it.</li>
-  <li><b>Reading:</b> outputs 0–15 always show the status word. Bits 0–7 are the received byte, valid while READY is high.</li>
+  <li><b>Reading:</b> outputs 0–15 always show the status. Bits 0–7 are the received byte, valid while READY is high.</li>
   <li><b>Taking the byte:</b> pulse <b>RD_DATA</b>, high and low again. While it's high the byte stays on the pins; when it
     falls, the next byte is shown, or READY goes low.</li>
   <li><b>Acknowledging events:</b> pulse <b>RD_STATUS</b>. When it falls, the sticky bits HUP and ECODE clear, so a short
@@ -150,7 +150,7 @@ word, input <i>n</i> or output <i>n</i> being bit <i>n</i>:</p>
 <p>Each peg is drawn at its <code>x</code> position in the block's prefab, from <code>x</code> = 0 on the left. Small grey numbers are the peg indexes in the code; the upper row is <code>y</code> = 1.5, the lower <code>y</code> = 0.5. RDD is RD_DATA (read data), RDS is RD_STATUS (read status), HANG is HANGUP; C11–C15 are the reserved control bits; E0–E2 are the three ECODE bits.</p>
 </div>
 
-<h3>The word written (inputs)</h3>
+<h3>The value written (inputs)</h3>
 <table>
   <thead><tr><th>Bits</th><th>Name</th><th>What it does</th></tr></thead>
   <tbody>
@@ -165,8 +165,8 @@ word, input <i>n</i> or output <i>n</i> being bit <i>n</i>:</p>
 <table>
   <thead><tr><th>Peg</th><th>Name</th><th>Drawn as</th><th>What it does</th></tr></thead>
   <tbody>
-    <tr><td class="num">16</td><td class="in">WR</td><td class="mono">WR</td><td><b>Write. Rising edge:</b> inputs 0–15 are sampled and the word
-      is acted on (send, command character, hang-up).</td></tr>
+    <tr><td class="num">16</td><td class="in">WR</td><td class="mono">WR</td><td><b>Write. Rising edge:</b> inputs 0–15 are sampled and
+      acted on (send, command character, hang-up).</td></tr>
     <tr><td class="num">17</td><td class="in">RD_DATA</td><td class="mono">RDD</td><td><b>Read data. High, then low:</b> the received byte on outputs 0–7
       has been read. While it is high the byte stays on the pins; when it falls, the next byte is shown, or READY goes low.</td></tr>
     <tr><td class="num">18</td><td class="in">RD_STATUS</td><td class="mono">RDS</td><td><b>Read status. High, then low:</b> the status has been read. When it
@@ -175,7 +175,7 @@ word, input <i>n</i> or output <i>n</i> being bit <i>n</i>:</p>
 </table>
 <p class="muted">All three sit on the upper row of the back face, at the far left: WR, RDD, RDS.</p>
 
-<h3>The word read (outputs)</h3>
+<h3>The value read (outputs)</h3>
 <table>
   <thead><tr><th>Bits</th><th>Name</th><th>Meaning</th></tr></thead>
   <tbody>
@@ -193,7 +193,7 @@ word, input <i>n</i> or output <i>n</i> being bit <i>n</i>:</p>
 <p class="muted">The outputs are refreshed every tick.</p>
 
 <h2>Commands</h2>
-<p>Write the characters with CMD set, one word each, ending with a newline (<code>\n</code>) or a carriage return (<code>\r</code>). A
+<p>Write the characters with CMD set, one write each, ending with a newline (<code>\n</code>) or a carriage return (<code>\r</code>). A
 new <code>listen</code> or <code>connect</code> first closes whatever was open.</p>
 <table>
   <thead><tr><th>Command</th><th>Does</th></tr></thead>
@@ -209,33 +209,36 @@ new <code>listen</code> or <code>connect</code> first closes whatever was open.<
 <div class="note">Connections aren't saved with the world. After a reload the circuit has to send its command again.</div>
 
 <h2>On a CPU bus</h2>
-<p>As two memory-mapped words, one address apart:</p>
+<p>As two 16-bit registers, at offsets 0 and 2 from the port's base address:</p>
 <table>
-  <thead><tr><th>Register</th><th>Read</th><th>Write</th></tr></thead>
+  <thead><tr><th>Offset</th><th>Register</th><th>A 16-bit read</th><th>A 16-bit write</th></tr></thead>
   <tbody>
-    <tr><td><b>DATA</b></td><td>The status word, and its byte is taken (RD_DATA)</td><td rowspan="2">The word: data byte and control bits</td></tr>
-    <tr><td><b>STATUS</b></td><td>The status word, and HUP and ECODE clear (RD_STATUS)</td></tr>
+    <tr><td class="num">+0</td><td><b>DATA</b></td><td>The status, and its byte is taken (RD_DATA)</td><td rowspan="2">Data byte and control bits</td></tr>
+    <tr><td class="num">+2</td><td><b>STATUS</b></td><td>The status, and HUP and ECODE clear (RD_STATUS)</td></tr>
   </tbody>
 </table>
 <ul>
-  <li><b>Inputs 0–15</b> ← data bus bits 0–15. <b>Outputs 0–15</b> → data bus bits 0–15, for a read of either word.</li>
-  <li><b>WR</b> ← write AND select (either word).</li>
-  <li><b>RD_DATA</b> ← read AND select AND NOT A2. <b>RD_STATUS</b> ← read AND select AND A2.</li>
-  <li><b>Timing:</b> hold RD high while the CPU latches the data, then drop it. If your bus writes a word as separate bytes, WR must
-    fire once per word.</li>
+  <li><b>Inputs 0–15</b> ← data bus bits 0–15. <b>Outputs 0–15</b> → data bus bits 0–15, for a read of either register.</li>
+  <li><b>WR</b> ← write AND select (either register).</li>
+  <li><b>RD_DATA</b> ← read AND select AND NOT A1. <b>RD_STATUS</b> ← read AND select AND A1. Address bit 1 tells the two
+    registers apart.</li>
+  <li><b>Access size:</b> 16 bits. A 32-bit access at offset 0 would cover both registers and pulse both strobes, so programs use
+    16-bit loads and stores. If your bus writes 16 bits as two byte writes, WR must fire once per write.</li>
+  <li><b>Timing:</b> hold RD high while the CPU latches the data, then drop it.</li>
 </ul>
 <p>A program then:</p>
 <ol>
-  <li>sends <code>listen 7000</code> as CMD words;</li>
+  <li>sends <code>listen 7000</code> as CMD writes;</li>
   <li>reads DATA in its main loop: a byte arrived when READY is set;</li>
   <li>writes <code>SEND | byte</code> while ROOM is set;</li>
   <li>reads STATUS now and then for HUP and ECODE.</li>
 </ol>
 <div class="note"><b>Example: the LW32.</b> The <a href="https://github.com/xPinkiex/LW-Compiler">LW32 toolchain</a> has this as its
-<code>net</code> device at <code>0x70000</code> (DATA) and <code>0x70004</code> (STATUS), with <code>LW32_NET</code> and the
-<code>LW32_NET_*</code> bits in <code>lw32_io.h</code>. Its emulator models the block with real sockets (<code>lw32-emu --net</code>).
-LW-CPU-OS listens on port 7000: a terminal gets a shell, a web browser gets the pages in <code>/www</code>.</div>
-<pre><code>#define DATA LW32_NET[0]
+<code>net</code> device at <code>0x70000</code> (DATA) and <code>0x70002</code> (STATUS), with <code>LW32_NET</code> (a
+<code>volatile unsigned short *</code>) and the <code>LW32_NET_*</code> bits in <code>lw32_io.h</code>. Its emulator models the block
+with real sockets (<code>lw32-emu --net</code>) and stops on a 32-bit access to it. LW-CPU-OS listens on port 7000: a terminal gets a
+shell, a web browser gets the pages in <code>/www</code>.</div>
+<pre><code>#define DATA LW32_NET[0]                        /* 16-bit registers */
 #define STAT LW32_NET[1]
 static void command(const char *s) { while (*s) DATA = LW32_NET_CMD | *s++; DATA = LW32_NET_CMD | '\n'; }
 
