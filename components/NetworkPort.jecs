@@ -1,4 +1,4 @@
-SerialPort:
+NetworkPort:
     column: "EVE_Components"
     category: "Other"
     prefab:
@@ -8,8 +8,8 @@ SerialPort:
                 position: (7.5, 0, 0.5)
                 scale: (16, 2, 2)
         inputs:
-            # Inputs 0-7 (y=0.5, back face): TX data bits 0-7, MSB on the left
-            # (bit 0 at x=11, bit 7 at x=4), as Eve's RAM's data pegs
+            # Input n is bit n of the word written (docs/network-port.html).
+            # Inputs 0-7 (y=0.5, back face): data bits 0-7, bit 0 at x=11, bit 7 at x=4
             -
                 position: (11, 0.5, -0.5)
                 rotation: (-90, 0, 0)
@@ -42,10 +42,43 @@ SerialPort:
                 position: (4, 0.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
-            # Input 8 (x=0, y=1.5): WR, rising edge sends the TX byte (or adds it to
-            # the command line when CMD is high)
-            # Input 9 (x=1): CMD
-            # Input 10 (x=2): RD, falling edge consumes the RX byte shown
+            # Inputs 8-15 (y=1.5): control bits 8-15 (8 SEND, 9 CMD, 10 HANGUP, 11-15
+            # reserved), bit 8 at x=11, bit 15 at x=4
+            -
+                position: (11, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (10, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (9, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (8, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (7, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (6, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (5, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (4, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Input 16 (x=0, y=1.5): WR, rising edge samples inputs 0-15
+            # Input 17 (x=1): RD_DATA, high then low: the byte shown was read
+            # Input 18 (x=2): RD_STATUS, high then low: HUP and ECODE were seen
             -
                 position: (0, 1.5, -0.5)
                 rotation: (-90, 0, 0)
@@ -59,7 +92,8 @@ SerialPort:
                 rotation: (-90, 0, 0)
                 length: 0.6
         outputs:
-            # Outputs 0-7 (y=0.5, front face): RX data bits 0-7, MSB on the left
+            # Output n is bit n of the word read.
+            # Outputs 0-7 (y=0.5, front face): the received byte, bit 0 at x=11
             -
                 position: (11, 0.5, 1.5)
                 rotation: (90, 0, 0)
@@ -84,24 +118,33 @@ SerialPort:
             -
                 position: (4, 0.5, 1.5)
                 rotation: (90, 0, 0)
-            # Outputs 8-12 (y=1.5): RXV (x=0) a byte is shown, CONN (x=1) connected,
-            # LSN (x=2) listening, TXR (x=3) room to send, ERR (x=4) last command failed
+            # Outputs 8-15 (y=1.5): 8 READY, 9 CONN, 10 LSN, 11 ROOM, 12 HUP,
+            # 13-15 ECODE; bit 8 at x=11, bit 15 at x=4
             -
-                position: (0, 1.5, 1.5)
+                position: (11, 1.5, 1.5)
                 rotation: (90, 0, 0)
             -
-                position: (1, 1.5, 1.5)
+                position: (10, 1.5, 1.5)
                 rotation: (90, 0, 0)
             -
-                position: (2, 1.5, 1.5)
+                position: (9, 1.5, 1.5)
                 rotation: (90, 0, 0)
             -
-                position: (3, 1.5, 1.5)
+                position: (8, 1.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (7, 1.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (6, 1.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (5, 1.5, 1.5)
                 rotation: (90, 0, 0)
             -
                 position: (4, 1.5, 1.5)
                 rotation: (90, 0, 0)
-    logicCode: EVE.Components.Server.SerialPortLogic
+    logicCode: EVE.Components.Server.NetworkPortLogic
     placingRules:
         offsetDimensions: (10, 3)
         gridPlacingDimensions: (16, 5)

@@ -40,19 +40,10 @@ Pauses the simulation when the input peg goes from low to high (rising edge). Us
 #### Breakpoint pause timing
 Logic World's simulation runs ticks in catch-up batches: each `Tick()` call runs as many `DoLogicUpdate()` calls as needed to catch up to real time, capped by a wall-clock budget. Vanilla only checks the pause flag once at the top of each `Tick()`, so a pause request issued *inside* a batch (by a component's `DoLogicUpdate`) isn't honored until the whole batch finishes — which means more missed ticks the higher your TPS. This mod ships a Harmony patch on `SimulationManager.Tick` that re-checks the running state after every `DoLogicUpdate()` and aborts the batch immediately when a pause is requested mid-batch, so the breakpoint pauses within one tick regardless of TPS.
 
-### Eve's Serial Port
-A byte stream between the circuit and a TCP connection, like a UART whose other end is a socket: a terminal on the PC can type into the CPU and read what it writes, and the CPU can connect out. The network I/O runs on a thread of the server; the pins only move bytes in and out of two 4096-byte queues.
+### Eve's Network Port
+A plain byte pipe between the circuit and one TCP connection: a network card for a CPU. It listens (a terminal or a web browser connects) or connects out. One word in, one word out: write a data byte with control bits (8 SEND, 9 CMD, 10 HANGUP) on WR's rising edge; read the received byte with status bits (8 READY, 9 CONN, 10 LSN, 11 ROOM, 12 HUP, 13-15 ECODE). RD_DATA takes the byte, RD_STATUS clears the sticky HUP and ECODE. Commands: `listen PORT`, `listen ADDR:PORT`, `connect HOST:PORT`, `close`. Pins, timing, wiring to a CPU bus and examples: [`docs/network-port.html`](docs/network-port.html).
 
-- Inputs (back face): 0-7 TX data (bottom row, bit 0 on the right), 8 WR (rising edge: the TX byte is sent, or with CMD high added to the command line), 9 CMD, 10 RD (falling edge: the RX byte shown is consumed and the next one shown)
-- Outputs (front face): 0-7 RX data, 8 RXV (a byte is shown), 9 CONN (connected), 10 LSN (listening), 11 TXR (room to send), 12 ERR (the last command failed)
-- Commands, bytes written with CMD high and ended by `\n` or `\r`:
-  - `listen PORT [telnet]`: accepts one connection at a time on 127.0.0.1 (`listen ADDR:PORT` for another address, `0.0.0.0` for every interface). With `telnet` the client is asked for character mode without local echo, telnet commands are dropped from the input and CR LF becomes CR, so `telnet localhost PORT` works as a terminal.
-  - `connect HOST:PORT`: connects out (to reach a remote shell over SSH, run e.g. `socat TCP-LISTEN:7001,bind=127.0.0.1,fork EXEC:"ssh user@host",pty` on the PC and connect to 127.0.0.1:7001).
-  - `close`
-- From another machine, use SSH to the PC: `ssh -L 7000:localhost:7000 you@pc`, then `telnet localhost 7000`.
-- The connection isn't saved with the world: after a reload the program sends its command again.
-
-For LW32 (the LW-Compiler toolchain's `serial` device at 0x70000): a write to DATA (0x70000) strobes WR, address bit 2 drives CMD (so 0x70004 is the command register), a read of DATA strobes RD, and a read of either gives outputs 0-12 as bits 0-12.
+`tools/lwterm.py` is a terminal for it (one Python file, raw mode, Ctrl+] quits): `python3 tools/lwterm.py localhost:7000`.
 
 ## ROM Editor
 

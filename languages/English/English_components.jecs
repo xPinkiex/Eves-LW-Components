@@ -6,7 +6,7 @@ EVE_Components.NormallyClosedRelay : "Eve's Normally-Closed Relay"
 
 EVE_Components.Breakpoint : "Eve's Breakpoint"
 
-EVE_Components.SerialPort : "Eve's Serial Port"
+EVE_Components.NetworkPort : "Eve's Network Port"
 
 ComponentColumn.EVE_Components    : "Eve's Components"
 ComponentCategory.Memory          : "Memory"
