@@ -7,23 +7,35 @@ using LogicAPI.Server.Components;
 namespace EVE.Components.Server
 {
     /// <summary>
-    /// RAM with a 32-bit byte address and a 32-bit data bus. Every access is a dword: the
-    /// output is always the 4 bytes starting at the address (little-endian, any alignment)
-    /// and a write replaces those 4 bytes. Decoding the address is left to the circuit.
+    /// RAM with a 32-bit byte address on the LW32 CPU block's bus (lw-compiler's
+    /// docs/cpu-block.md): an access is READ or WRITE for one tick with the address and
+    /// the size (BYTE, WORD or DWORD; none: DWORD), and the data for a write. The RAM
+    /// answers as fast as the bus allows: DATA READY the next tick, and on a read the
+    /// value (the size's bytes from the address, little-endian, zero-extended) on the data
+    /// outputs the tick after that, for that one tick; they are low otherwise, so they can
+    /// share the bus's data lines. A write stores the size's low bytes. Decoding the
+    /// address is left to the circuit: gate READ and WRITE (with the 2g map, A31 low).
     ///
     /// The whole 4 GiB address space is backed, but memory is only reserved in 512 KiB pages
     /// when something is first written to them; untouched pages read as 0 and cost nothing.
     ///
-    /// Inputs: 0-31 address bits 0-31, 32-63 write data bits 0-31, 64 write enable.
-    /// Outputs: 0-31 data bits 0-31.
+    /// Inputs: 0-31 address, 32-63 write data, 64 READ, 65 WRITE, 66 BYTE, 67 WORD, 68 DWORD.
+    /// Outputs: 0-31 data (only in a read's data tick), 32 DATA READY.
     /// </summary>
     public class Ram32Logic : LogicComponent, IRomHost
     {
         public const int PageShift = 19;                       // 512 KiB
         public const int PageSize = 1 << PageShift;
         public const int PageCount = 1 << (32 - PageShift);    // 8192
-        public const int WEIndex = 64;
         public const int DataInBase = 32;
+        public const int Read = 64, Write = 65, Byte = 66, Word = 67, DWord = 68;   // inputs
+        public const int DataOut = 0, Ready = 32;                                   // outputs
+
+        // The bus handshake: what the next update puts on the outputs.
+        private const int Idle = 0, ReadyThenData = 1, ReadyThenIdle = 2, DataThenIdle = 3;
+        private int _phase;
+        private uint _answer;                                  // a read's value, for its data tick
+        private bool _prevRead, _prevWrite;
 
         private static readonly byte[] Magic = Encoding.ASCII.GetBytes("EVERAM32\n");
 
@@ -32,7 +44,6 @@ namespace EVE.Components.Server
         private string _sourceText = null;
         private string _originalSourceText = null;
         private bool _skipNextDeserialize;
-        private bool _prevWriteEnable;
 
         public override bool HasPersistentValues => true;
 
@@ -127,59 +138,77 @@ namespace EVE.Components.Server
 
         protected override void DoLogicUpdate()
         {
-            uint address = 0;
-            for (int i = 0; i < 32; i++)
+            bool read = Inputs[Read].On, write = Inputs[Write].On;
+            bool newRead = read && !_prevRead, newWrite = write && !_prevWrite;
+            _prevRead = read;
+            _prevWrite = write;
+
+            bool ready = false;
+            uint data = 0;
+            if (newRead || newWrite)
             {
-                if (base.Inputs[i].On)
+                uint address = 0, value = 0;
+                for (int i = 0; i < 32; i++)
                 {
-                    address |= 1u << i;
+                    if (Inputs[i].On) address |= 1u << i;
+                    if (Inputs[DataInBase + i].On) value |= 1u << i;
                 }
-            }
-
-            bool writeEnable = base.Inputs[WEIndex].On;
-            if (writeEnable && !_prevWriteEnable)
-            {
-                for (int k = 0; k < 4; k++)
+                int size = Inputs[Byte].On ? 1 : Inputs[Word].On ? 2 : 4;
+                if (newRead)
                 {
-                    byte b = 0;
-                    for (int bit = 0; bit < 8; bit++)
-                    {
-                        if (base.Inputs[DataInBase + 8 * k + bit].On)
-                        {
-                            b |= (byte)(1 << bit);
-                        }
-                    }
-                    WriteByte(address + (uint)k, b);    // wraps at 2^32 like the address bus
+                    _answer = 0;
+                    for (int k = 0; k < size; k++)
+                        _answer |= (uint)ReadByte(address + (uint)k) << (8 * k);
+                    _phase = ReadyThenData;
                 }
+                else
+                {
+                    for (int k = 0; k < size; k++)
+                        WriteByte(address + (uint)k, (byte)(value >> (8 * k)));   // wraps at 2^32
+                    _phase = ReadyThenIdle;
+                }
+                ready = true;
             }
-            _prevWriteEnable = writeEnable;
-
-            uint value = 0;
-            for (int k = 0; k < 4; k++)
+            else if (_phase == ReadyThenData)
             {
-                value |= (uint)ReadByte(address + (uint)k) << (8 * k);
+                data = _answer;                                // the tick after DATA READY
+                _phase = DataThenIdle;
+            }
+            else if (_phase == ReadyThenIdle || _phase == DataThenIdle)
+            {
+                _phase = Idle;
             }
 
+            Outputs[Ready].On = ready;
             for (int i = 0; i < 32; i++)
-            {
-                base.Outputs[i].On = (value & (1u << i)) != 0;
-            }
+                Outputs[DataOut + i].On = (data & (1u << i)) != 0;
+            if (_phase != Idle)
+                QueueLogicUpdate();                            // the handshake's next step
         }
 
         // ---- persistence ----
-        // With editor source text: the text (runtime writes are dropped, as in Eve's RAM).
-        // Without: "EVERAM32\n", then for each page that is not all zero a uint32 page index
-        // (little-endian) followed by the 512 KiB of the page.
+        // "EVERAM32\n", the handshake (phase, the pending answer, the last READ and WRITE:
+        // a save in the middle of an access answers it after the reload), then either 'T'
+        // and the editor's source text (runtime writes are dropped, as in Eve's RAM), or 'P'
+        // and, for each page that is not all zero, a uint32 page index (little-endian)
+        // followed by the 512 KiB of the page.
 
         protected override byte[] SerializeCustomData()
         {
-            if (_sourceText != null)
-            {
-                return Encoding.UTF8.GetBytes(_sourceText);
-            }
             using (var stream = new MemoryStream())
             {
                 stream.Write(Magic, 0, Magic.Length);
+                stream.WriteByte((byte)_phase);
+                stream.Write(BitConverter.GetBytes(_answer), 0, 4);
+                stream.WriteByte((byte)((_prevRead ? 1 : 0) | (_prevWrite ? 2 : 0)));
+                if (_sourceText != null)
+                {
+                    stream.WriteByte((byte)'T');
+                    byte[] text = Encoding.UTF8.GetBytes(_sourceText);
+                    stream.Write(text, 0, text.Length);
+                    return stream.ToArray();
+                }
+                stream.WriteByte((byte)'P');
                 for (int i = 0; i < PageCount; i++)
                 {
                     if (_pages[i] != null && !IsZero(_pages[i]))
@@ -204,9 +233,29 @@ namespace EVE.Components.Server
             _sourceText = null;
             _originalSourceText = null;
 
-            if (data != null && StartsWithMagic(data))
+            _phase = Idle;
+            _answer = 0;
+            _prevRead = _prevWrite = false;
+            if (data != null && StartsWithMagic(data) && data.Length >= Magic.Length + 7)
             {
                 int pos = Magic.Length;
+                _phase = data[pos] <= DataThenIdle ? data[pos] : Idle;
+                _answer = BitConverter.ToUInt32(data, pos + 1);
+                _prevRead = (data[pos + 5] & 1) != 0;
+                _prevWrite = (data[pos + 5] & 2) != 0;
+                byte kind = data[pos + 6];
+                pos += 7;
+                if (kind == (byte)'T')
+                {
+                    string saved = Encoding.UTF8.GetString(data, pos, data.Length - pos);
+                    var parsed = RamParser.Parse(saved);
+                    _sourceText = saved;
+                    if (parsed.Success)
+                        LoadImage(parsed.Data);
+                    else
+                        RamServer.Logger?.Error($"EVE_Components: RAM (32-bit) could not load its text: {parsed.Error}");
+                    pos = data.Length;
+                }
                 while (pos + 4 + PageSize <= data.Length)
                 {
                     uint index = BitConverter.ToUInt32(data, pos);

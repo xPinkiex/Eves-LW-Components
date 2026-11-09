@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<nav><div><a href="index.html">Overview</a><a href="ram.html">Eve's RAM</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html">The ROM editor</a><a href="network-port.html">Eve's Network Port</a><a href="lw32-cpu.html" class="here">Eve's LW32 CPU</a><a href="relay.html">Normally-Closed Relay</a><a href="breakpoint.html">Eve's Breakpoint</a></div></nav>
+<nav><div><a href="index.html">Overview</a><a href="ram.html">Eve's RAM</a><a href="ram32.html">Eve's RAM (32-bit)</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html">The ROM editor</a><a href="network-port.html">Eve's Network Port</a><a href="lw32-cpu.html" class="here">Eve's LW32 CPU</a><a href="relay.html">Normally-Closed Relay</a><a href="breakpoint.html">Eve's Breakpoint</a></div></nav>
 <main>
 <h1>Eve's LW32 CPU</h1>
 <p class="sub">The LW32 CPU as one block: it runs the same programs as the CPU built from gates, on the same bus, with
@@ -48,7 +48,7 @@ CPU built from gates.</p>
 <h2>Saving</h2>
 <p>The CPU's state (registers, flags, and where it is in an access) is kept with the world: after a reload it goes on
 from there, and never repeats an access. That relies on Logic World restoring the wire states with the world, so an answer
-in flight arrives after the reload. RAM keeps its own behaviour (<a href="ram.html">Eve's RAM</a>).</p>
+in flight arrives after the reload. RAM keeps its own behaviour (<a href="ram.html">Eve's RAM</a><a href="ram32.html">Eve's RAM (32-bit)</a>).</p>
 
 <h2>The native library</h2>
 <p>The CPU's core is built from the lw-compiler repo (<code>emu/build-native.sh</code> copies it here), so the block runs
