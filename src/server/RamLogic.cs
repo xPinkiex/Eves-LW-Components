@@ -6,7 +6,7 @@ using LogicLog;
 
 namespace EVE.Components.Server
 {
-    public class RamLogic : LogicComponent
+    public class RamLogic : LogicComponent, IRomHost
     {
         private byte[] _romData = new byte[0];
         private byte[] _originalData = new byte[0];

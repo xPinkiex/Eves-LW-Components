@@ -109,19 +109,14 @@ namespace EVE.Components.Server
                 return;
             }
 
-            if (component is RamLogic rom)
+            if (component is IRomHost rom)
             {
                 rom.SetRomData(data, sourceText);
-                _mutations.ForceDataRefresh(rom);
-            }
-            else if (component is MicrocodeRomLogic microRom)
-            {
-                microRom.SetRomData(data, sourceText);
-                _mutations.ForceDataRefresh(microRom);
+                _mutations.ForceDataRefresh(component);
             }
             else
             {
-                Logger.Error($"EVE_Components: Component at {address} is not a RamLogic or MicrocodeRomLogic (actual type: {component.GetType().Name})");
+                Logger.Error($"EVE_Components: Component at {address} is not a memory component (actual type: {component.GetType().Name})");
             }
         }
 
@@ -159,19 +154,14 @@ namespace EVE.Components.Server
                 return;
             }
 
-            if (component is RamLogic ram)
+            if (component is IRomHost host)
             {
-                if (action == RomActionType.Save) ram.Save();
-                else if (action == RomActionType.Restore) ram.Restore();
-            }
-            else if (component is MicrocodeRomLogic microRom)
-            {
-                if (action == RomActionType.Save) microRom.Save();
-                else if (action == RomActionType.Restore) microRom.Restore();
+                if (action == RomActionType.Save) host.Save();
+                else if (action == RomActionType.Restore) host.Restore();
             }
             else
             {
-                Logger.Error($"EVE_Components: Component at {address} is not a RamLogic or MicrocodeRomLogic (actual type: {component.GetType().Name})");
+                Logger.Error($"EVE_Components: Component at {address} is not a memory component (actual type: {component.GetType().Name})");
             }
         }
     }
