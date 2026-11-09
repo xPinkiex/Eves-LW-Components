@@ -73,6 +73,10 @@ namespace EVE.Components.Server
             // Logic World update — the mod still loads, breakpoint keeps vanilla latency.
             BreakpointPausePatch.Initialize(Logger);
 
+            // The LW32 emulator core for the CPU block (native/liblw32core.so). For now
+            // only a loading test: the log says whether it loaded. Never stops the mod.
+            Lw32Native.Load(Files.Path, Logger);
+
             Logger.Info("EVE_Components server mod loaded");
         }
 

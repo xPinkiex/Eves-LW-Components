@@ -45,6 +45,12 @@ A plain byte pipe between the circuit and one TCP connection: a network card for
 
 `tools/lwterm.py` is a terminal for it (one Python file, raw mode, Ctrl+] quits): `python3 tools/lwterm.py localhost:7000`.
 
+### LW32 CPU (in progress, branch `cpu-block`)
+The LW32 emulator as a block on the CPU's bus (the plan: `docs/cpu-block.md` in the
+lw-compiler repo). Its core is a native library, `native/liblw32core.so` (Linux x64), built
+from lw-compiler by `emu/build-native.sh`. So far only a loading test: at start the server log
+says `lw32core loaded ... (version 1, 2 + 3 = 5)`, or why it didn't load.
+
 ## ROM Editor
 
 Press **X** while looking at a RAM or Microcode ROM block to open the editor.
