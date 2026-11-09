@@ -45,11 +45,17 @@ A plain byte pipe between the circuit and one TCP connection: a network card for
 
 `tools/lwterm.py` is a terminal for it (one Python file, raw mode, Ctrl+] quits): `python3 tools/lwterm.py localhost:7000`.
 
-### LW32 CPU (in progress, branch `cpu-block`)
-The LW32 emulator as a block on the CPU's bus (the plan: `docs/cpu-block.md` in the
-lw-compiler repo). Its core is a native library, `native/liblw32core.so` (Linux x64), built
-from lw-compiler by `emu/build-native.sh`. So far only a loading test: at start the server log
-says `lw32core loaded ... (version 1, 2 + 3 = 5)`, or why it didn't load.
+### Eve's LW32 CPU (in progress, branch `cpu-block`)
+The LW32 CPU as one block on the CPU's bus: it runs the same programs as the CPU built from gates,
+with the RAM and devices on the bus, a few times faster, and keeps its state with the world.
+
+- 32 data-in pegs, DATA READY, RUN, RESET; 32 address, 32 data-out pegs, READ, WRITE, BYTE, WORD, DWORD, HALTED
+- An access is on the outputs for one tick; the CPU waits for DATA READY and, on a read, takes the data the tick after
+
+Its core is a native library, `native/liblw32core.so` (Linux x64, glibc 2.16 or newer), built from the
+lw-compiler repo by `emu/build-native.sh`. At start the server log says `lw32core loaded ...`, or why it
+didn't. Pins, timing and saving: [`docs/lw32-cpu.html`](docs/lw32-cpu.html). `tests/cpu-block` runs the
+block's code outside the game.
 
 ## ROM Editor
 

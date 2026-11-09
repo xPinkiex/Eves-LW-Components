@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eve's LW32 CPU · Eve's Components</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><div><a href="index.html">Overview</a><a href="ram.html">Eve's RAM</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html">The ROM editor</a><a href="network-port.html">Eve's Network Port</a><a href="lw32-cpu.html" class="here">Eve's LW32 CPU</a><a href="relay.html">Normally-Closed Relay</a><a href="breakpoint.html">Eve's Breakpoint</a></div></nav>
+<main>
+<h1>Eve's LW32 CPU</h1>
+<p class="sub">The LW32 CPU as one block: it runs the same programs as the CPU built from gates, on the same bus, with
+your RAM and devices. Its core is the lw-compiler repo's emulator (<code>native/liblw32core.so</code>, Linux x64).
+In progress: not yet run in the game.</p>
+
+<h2>Pegs</h2>
+<p>The block is 32 wide, 3 high and 2 deep. Inputs on the back face, outputs on the front face; in each 32-bit row bit 0 is
+at the right (x = 31) and bit 31 at the left (x = 0), seen from the front.</p>
+<table>
+  <thead><tr><th>Index</th><th>Where</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td class="num">in 0-31</td><td>Back, bottom row</td><td><b>Data in</b>: the bus's data lines, read only while the CPU waits for an answer.</td></tr>
+    <tr><td class="num">in 32</td><td>Back, middle row, x = 0</td><td><b>DATA READY</b>: the device's answer (one tick). On a read the data is on the bus the tick after.</td></tr>
+    <tr><td class="num">in 33</td><td>Back, middle row, x = 1</td><td><b>RUN</b>: high to run. Looked at between instructions; an access in progress always finishes.</td></tr>
+    <tr><td class="num">in 34</td><td>Back, middle row, x = 2</td><td><b>RESET</b>: while high, the CPU is at power-on (registers, flags and PC 0) and the bus is quiet. Hold it until any answer still in flight has come.</td></tr>
+    <tr><td class="num">out 0-31</td><td>Front, bottom row</td><td><b>Address</b>, during an access's tick.</td></tr>
+    <tr><td class="num">out 32-63</td><td>Front, middle row</td><td><b>Data out</b>: driven only in a write's tick, low otherwise. Connect to the same bus lines as data in.</td></tr>
+    <tr><td class="num">out 64-68</td><td>Front, top row, x = 0-4</td><td><b>READ</b>, <b>WRITE</b>, and the size: <b>BYTE</b>, <b>WORD</b>, <b>DWORD</b>, for one tick per access.</td></tr>
+    <tr><td class="num">out 69</td><td>Front, top row, x = 5</td><td><b>HALTED</b>: after a <code>Halt</code>, or an instruction it doesn't know (the server log says which). Cleared by RESET.</td></tr>
+  </tbody>
+</table>
+
+<h2>The bus</h2>
+<ul>
+  <li>An access: address, READ or WRITE, the size, and for a write the data, all for <b>one tick</b>.</li>
+  <li>The CPU then waits for <b>DATA READY</b> (one tick). On a read it takes the data <b>the tick after</b>; on a write
+    DATA READY is the confirmation.</li>
+  <li>The next access goes out the tick after the last one finished. An instruction's own work takes one tick: its
+    last access finishing completes it, and the next instruction's fetch goes out the tick after.</li>
+  <li>Accesses as the CPU's microcode makes them: the instruction as a dword read at its address, its immediate (if any)
+    as a byte, word or dword read at address + 2, then at most one data access. So the RAM modules and devices see what
+    they see from the hardware CPU, and the same rules apply (an access across two RAM modules fails).</li>
+</ul>
+<p>With devices that answer in one to three ticks, <code>tests/hw_tests.c</code> (O1) takes 3.8 million ticks, against 32.9 million on the
+CPU built from gates.</p>
+
+<h2>Saving</h2>
+<p>The CPU's state (registers, flags, and where it is in an access) is kept with the world: after a reload it goes on
+from there, and never repeats an access. That relies on Logic World restoring the wire states with the world, so an answer
+in flight arrives after the reload. RAM keeps its own behaviour (<a href="ram.html">Eve's RAM</a>).</p>
+
+<h2>The native library</h2>
+<p>The CPU's core is built from the lw-compiler repo (<code>emu/build-native.sh</code> copies it here), so the block runs
+the same code as the emulator the compiler is tested with. It needs a 64-bit Linux server (glibc 2.16 or newer) and
+nothing else. At start the server log says <code>lw32core loaded ...</code>, or why it didn't load; without it the block
+does nothing. <code>tests/cpu-block</code> runs this block's code outside the game (<code>dotnet run</code>, see its
+<code>Program.cs</code>).</p>
+</main>
+<footer>Eve's Components, a Logic World mod. These pages are in the mod's <code>docs/</code> folder.</footer>
+</body>
+</html>

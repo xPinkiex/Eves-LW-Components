@@ -8,6 +8,8 @@ EVE_Components.Breakpoint : "Eve's Breakpoint"
 
 EVE_Components.NetworkPort : "Eve's Network Port"
 
+EVE_Components.LW32CPU : "Eve's LW32 CPU"
+
 ComponentColumn.EVE_Components    : "Eve's Components"
 ComponentCategory.Memory          : "Memory"
 ComponentCategory.Other           : "Other"

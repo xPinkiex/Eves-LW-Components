@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<nav><div><a href="index.html" class="here">Overview</a><a href="ram.html">Eve's RAM</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html">The ROM editor</a><a href="network-port.html">Eve's Network Port</a><a href="relay.html">Normally-Closed Relay</a><a href="breakpoint.html">Eve's Breakpoint</a></div></nav>
+<nav><div><a href="index.html" class="here">Overview</a><a href="ram.html">Eve's RAM</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html">The ROM editor</a><a href="network-port.html">Eve's Network Port</a><a href="lw32-cpu.html">Eve's LW32 CPU</a><a href="relay.html">Normally-Closed Relay</a><a href="breakpoint.html">Eve's Breakpoint</a></div></nav>
 <main>
 <h1>Eve's Components</h1>
 <p class="sub">Custom components for Logic World, made for building CPUs: memory with an in-game editor, a microcode ROM, a network port, and debugging help.</p>
@@ -15,6 +15,7 @@
   <a class="card" href="ram.html"><b><span class="swatch" style="background:#FF8800"></span>Eve's RAM</b><p>64 KB, byte-wide, 16 address bits. Loaded from the editor or a file.</p></a>
   <a class="card" href="microcode-rom.html"><b><span class="swatch" style="background:#88CCFF"></span>Eve's Microcode ROM</b><p>32-bit words, 16 address bits. For control words.</p></a>
   <a class="card" href="network-port.html"><b><span class="swatch" style="background:#3388CC"></span>Eve's Network Port</b><p>A byte pipe between the circuit and a TCP connection: terminals, web pages, networking.</p></a>
+  <a class="card" href="lw32-cpu.html"><b><span class="swatch" style="background:#7744AA"></span>Eve's LW32 CPU</b><p>The LW32 CPU as one block on your bus: runs the same programs, a few times faster. In progress.</p></a>
   <a class="card" href="relay.html"><b><span class="swatch" style="background:#2B4D7E"></span>Normally-Closed Relay</b><p>Connects two pegs unless its control is high.</p></a>
   <a class="card" href="breakpoint.html"><b><span class="swatch" style="background:#CC3333"></span>Eve's Breakpoint</b><p>Pauses the simulation within one tick of a rising edge.</p></a>
   <a class="card" href="editor.html"><b>The ROM editor</b><p>Press X at a RAM or ROM: hex and binary bytes, addresses, files.</p></a>
@@ -28,7 +29,7 @@
   <li>Start Logic World. It compiles the mod at start-up, so restart it after updating the mod.</li>
 </ol>
 <p>The components are in the build menu under <b>Eve's Components</b>, in three groups: <b>Memory</b> (RAM, Microcode ROM),
-<b>Other</b> (Network Port, Normally-Closed Relay) and <b>Debug</b> (Breakpoint).</p>
+<b>Other</b> (Network Port, LW32 CPU, Normally-Closed Relay) and <b>Debug</b> (Breakpoint).</p>
 
 <h2>Conventions</h2>
 <ul>
