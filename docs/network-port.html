@@ -160,7 +160,8 @@ queues and the socket. The pins only touch the queues, so the circuit never wait
     <tr><td class="num">0–7</td><td class="in">DATA</td><td>A byte to send, or a command character.</td></tr>
     <tr><td class="num">8</td><td class="in">SEND</td><td>Send the byte over the connection. Dropped when there is none.</td></tr>
     <tr><td class="num">9</td><td class="in">CMD</td><td>The byte is a command character (below).</td></tr>
-    <tr><td class="num">10</td><td class="in">HANGUP</td><td>Close the connection after what was sent before; listening goes on.</td></tr>
+    <tr><td class="num">10</td><td class="in">HANGUP</td><td>Close the connection after what was sent before, and drop its unread bytes; listening goes on.
+      It applies to the connection the last read showed with CONN high: one that came after that is left alone.</td></tr>
     <tr><td class="num">11–15</td><td class="in">—</td><td>Reserved, write 0.</td></tr>
   </tbody>
 </table>
@@ -185,7 +186,7 @@ queues and the socket. The pins only touch the queues, so the circuit never wait
   <tbody>
     <tr><td class="num">0–7</td><td class="out">DATA</td><td>The received byte, valid while READY.</td></tr>
     <tr><td class="num">8</td><td class="out">READY</td><td>A received byte is in bits 0–7.</td></tr>
-    <tr><td class="num">9</td><td class="out">CONN</td><td>Connected. Drops in the tick HANGUP is written.</td></tr>
+    <tr><td class="num">9</td><td class="out">CONN</td><td>Connected. Drops in the tick HANGUP is written. Between two connections it is always seen low (below).</td></tr>
     <tr><td class="num">10</td><td class="out">LSN</td><td>Listening.</td></tr>
     <tr><td class="num">11</td><td class="out">ROOM</td><td>The send queue has room (low when 4,096 bytes wait).</td></tr>
     <tr><td class="num">12</td><td class="out">HUP</td><td>Sticky: the other side closed the connection, or it broke, since the last RD_STATUS.
@@ -210,6 +211,11 @@ new <code>listen</code> or <code>connect</code> first closes whatever was open.<
     <tr><td class="mono">close</td><td>Closes the connection and stops listening.</td></tr>
   </tbody>
 </table>
+<p><b>One connection after another.</b> When a connection ends (either side), the next one waiting is taken only
+once a read has shown CONN low and the old connection's bytes are gone: read to the end, or dropped by HANGUP. So the
+circuit always sees CONN go low between two connections, a hang-up meant for the old one can't close the new one, and
+no bytes from one reach the next. After the other side hangs up, read what is left or set HANGUP; until then the next
+connection waits.</p>
 <div class="note">Connections aren't saved with the world. After a reload the circuit has to send its command again.</div>
 
 <h2>On a CPU bus</h2>

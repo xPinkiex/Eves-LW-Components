@@ -26,6 +26,13 @@ namespace EVE.Components.Server
     ///   listen PORT, listen ADDR:PORT, connect HOST:PORT, close.
     /// A worker thread does the network I/O; the logic update only moves bytes
     /// between the pins and the queues.
+    ///
+    /// Between two connections the circuit always sees CONN low: after one ends
+    /// (either side), the next waiting one is taken only once a read has shown
+    /// CONN low and the old one's bytes are gone (read, or dropped by HANGUP).
+    /// HANGUP applies to the connection the circuit last saw with CONN high, and
+    /// drops its unread bytes. So a late hang-up can't close the next connection,
+    /// and no bytes cross from one connection to the next.
     public class NetworkPortLogic : LogicComponent
     {
         public const int WR = 16, RD_DATA = 17, RD_STATUS = 18;
@@ -38,26 +45,35 @@ namespace EVE.Components.Server
 
         private static readonly ILogicLogger Log = LogicLogger.For<NetworkPortLogic>();
 
-        private readonly ConcurrentQueue<byte> _rx = new ConcurrentQueue<byte>();
+        // Received bytes, each with its connection's number (_link).
+        private readonly ConcurrentQueue<(int Id, byte Byte)> _rx = new ConcurrentQueue<(int, byte)>();
         // What the circuit writes, in order: a byte to send, a command line, or
         // a hang-up (so nothing overtakes the bytes written before it).
         private enum Kind { Byte, Command, Hangup }
-        private readonly ConcurrentQueue<(Kind Kind, string Command, byte Byte)> _out =
-            new ConcurrentQueue<(Kind, string, byte)>();
+        // Byte: the byte to send; Hangup: the connection's number.
+        private readonly ConcurrentQueue<(Kind Kind, string Command, int Value)> _out =
+            new ConcurrentQueue<(Kind, string, int)>();
         private readonly StringBuilder _commandLine = new StringBuilder();
         private int _txCount, _rxCount;
-        private volatile bool _connected, _listening, _disposed;
+        private volatile bool _listening, _disposed;
         private int _hup, _ecode;               // sticky, until RD_STATUS
-        // HANGUP drops CONN at once: written, not yet done on the worker thread.
-        private int _hangupsAsked, _hangupsDone;
+        // The connection, written by the worker in one go: its number (counted
+        // from 1, 0 none yet) * 2, + 1 while it is open.
+        private int _link;
+        // Logic thread: the connection a read last showed with CONN high; the
+        // last one seen ended (a read showed CONN low, or hung up); the last one
+        // hung up (CONN low at once) and whose bytes are dropped.
+        private int _seen, _acked, _dropped;
         private Thread _worker;
 
         private int _shown = -1;                // the byte on the outputs, -1 none
+        private int _shownId = -1;              // its connection; -1 while none (for the worker)
         private bool _prevWr, _prevRdData, _prevRdStatus;
 
         // Worker thread state
         private TcpListener _listener;
         private TcpClient _client;
+        private int _id;                        // the current (or last) connection's number
         private NetworkStream _stream;
 
         protected override void Initialize()
@@ -82,7 +98,7 @@ namespace EVE.Components.Server
                 Write(word);
             }
             if (!rdData && _prevRdData)
-                _shown = -1;                    // read: show the next one
+                Unshow();                       // read: show the next one
             if (!rdStatus && _prevRdStatus)
             {
                 Interlocked.Exchange(ref _hup, 0);  // seen
@@ -92,17 +108,30 @@ namespace EVE.Components.Server
             _prevRdData = rdData;
             _prevRdStatus = rdStatus;
 
+            int dropped = Volatile.Read(ref _dropped);
+            if (_shown >= 0 && _shownId <= dropped)
+                Unshow();                       // a hung-up connection's
             // A new byte is shown only between reads: one arriving while RD_DATA is
             // high would be taken when it falls without the circuit having seen it.
-            if (_shown < 0 && !rdData && _rx.TryDequeue(out byte next))
+            while (_shown < 0 && !rdData && _rx.TryDequeue(out var next))
             {
-                Interlocked.Decrement(ref _rxCount);
-                _shown = next;
+                if (next.Id > dropped)
+                {
+                    _shown = next.Byte;
+                    Volatile.Write(ref _shownId, next.Id);
+                }
+                Interlocked.Decrement(ref _rxCount);   // after _shownId: the worker looks at both
+            }
+            int link = Volatile.Read(ref _link), id = link >> 1;
+            bool conn = (link & 1) != 0 && id > dropped;
+            if (rdData || rdStatus)
+            {
+                if (conn) _seen = id;
+                else Volatile.Write(ref _acked, id);   // seen ended (or none yet)
             }
             int status = (_shown >= 0 ? _shown : 0)
                          | (_shown >= 0 ? 1 << READY : 0)
-                         | (_connected && Volatile.Read(ref _hangupsAsked) == Volatile.Read(ref _hangupsDone)
-                            ? 1 << CONN : 0)
+                         | (conn ? 1 << CONN : 0)
                          | (_listening ? 1 << LSN : 0)
                          | (Volatile.Read(ref _txCount) < QueueLimit ? 1 << ROOM : 0)
                          | (Volatile.Read(ref _hup) != 0 ? 1 << HUP : 0)
@@ -116,6 +145,20 @@ namespace EVE.Components.Server
             QueueLogicUpdate();
         }
 
+        private void Unshow()
+        {
+            _shown = -1;
+            Volatile.Write(ref _shownId, -1);
+        }
+
+        // The connection id, as the circuit saw it, ended: its bytes go, CONN is low.
+        private void Forget(int id)
+        {
+            if (id > Volatile.Read(ref _dropped)) Volatile.Write(ref _dropped, id);
+            if (id > Volatile.Read(ref _acked)) Volatile.Write(ref _acked, id);
+            if (_shown >= 0 && _shownId <= id) Unshow();
+        }
+
         private void Write(int word)
         {
             byte b = (byte)word;
@@ -124,7 +167,10 @@ namespace EVE.Components.Server
                 if (b == '\n' || b == '\r')
                 {
                     if (_commandLine.Length > 0)
+                    {
+                        Forget(Volatile.Read(ref _link) >> 1);   // a command ends the connection
                         _out.Enqueue((Kind.Command, _commandLine.ToString(), 0));
+                    }
                     _commandLine.Clear();
                 }
                 else if (_commandLine.Length < 256)
@@ -137,10 +183,11 @@ namespace EVE.Components.Server
                 _out.Enqueue((Kind.Byte, null, b));
                 Interlocked.Increment(ref _txCount);
             }
-            if ((word & HANGUP) != 0)
+            if ((word & HANGUP) != 0 && _seen > 0 && _seen == Volatile.Read(ref _link) >> 1)
             {
-                Interlocked.Increment(ref _hangupsAsked);   // CONN is low from now on
-                _out.Enqueue((Kind.Hangup, null, 0));
+                // Else a late one: the circuit never saw this connection.
+                Forget(_seen);                  // CONN is low from now on
+                _out.Enqueue((Kind.Hangup, null, _seen));
             }
         }
 
@@ -167,7 +214,7 @@ namespace EVE.Components.Server
                         {
                             Interlocked.Decrement(ref _txCount);
                             if (_client != null)
-                                outBuf.Add(item.Byte);  // with nothing to send to, it's dropped
+                                outBuf.Add((byte)item.Value);  // with nothing to send to, it's dropped
                             continue;
                         }
                         Send(outBuf);
@@ -175,16 +222,14 @@ namespace EVE.Components.Server
                         {
                             RunCommand(item.Command);
                         }
-                        else
+                        else if (item.Value == _id)
                         {
                             CloseClient(false);         // hang up: listening goes on
-                            _connected = false;
-                            Interlocked.Increment(ref _hangupsDone);
                         }
                     }
                     Send(outBuf);
 
-                    if (_listener != null && _client == null && _listener.Pending())
+                    if (_listener != null && _client == null && Settled() && _listener.Pending())
                     {
                         _client = _listener.AcceptTcpClient();
                         Opened();
@@ -199,7 +244,7 @@ namespace EVE.Components.Server
                             int n = _stream.Read(buf, 0, Math.Min(room, buf.Length));
                             for (int i = 0; i < n; i++)
                             {
-                                _rx.Enqueue(buf[i]);
+                                _rx.Enqueue((_id, buf[i]));
                                 Interlocked.Increment(ref _rxCount);
                             }
                         }
@@ -215,12 +260,20 @@ namespace EVE.Components.Server
                     Error(EOther);
                     CloseClient(true);  // the connection broke
                 }
-                _connected = _client != null;
                 _listening = _listener != null;
                 Thread.Sleep(2);
             }
             CloseClient(false);
             CloseListener();
+        }
+
+        // The next connection may be taken: the circuit has seen the last one end,
+        // and its bytes are gone (read, or dropped by a hang-up).
+        private bool Settled()
+        {
+            if (Volatile.Read(ref _acked) < _id) return false;
+            if (Volatile.Read(ref _dropped) >= _id) return true;
+            return Volatile.Read(ref _rxCount) == 0 && Volatile.Read(ref _shownId) < 0;
         }
 
         private void Error(int code)
@@ -321,7 +374,6 @@ namespace EVE.Components.Server
                 Error(EOther);
                 Log.Info($"NetworkPort: '{line}' failed: {ex.Message}");
             }
-            _connected = _client != null;
             _listening = _listener != null;
         }
 
@@ -329,6 +381,8 @@ namespace EVE.Components.Server
         {
             _client.NoDelay = true;
             _stream = _client.GetStream();
+            _id++;
+            Volatile.Write(ref _link, _id * 2 + 1);
         }
 
         // remote: the other side closed it, or it broke (HUP); else our own doing.
@@ -339,6 +393,7 @@ namespace EVE.Components.Server
             try { _client?.Close(); } catch (Exception) { }
             _client = null;
             _stream = null;
+            Volatile.Write(ref _link, _id * 2);
         }
 
         private void CloseListener()
