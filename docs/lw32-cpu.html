@@ -30,6 +30,332 @@ at the right (x = 31) and bit 31 at the left (x = 0), seen from the front.</p>
     <tr><td class="num">out 69</td><td>Front, top row, x = 5</td><td><b>HALTED</b>: after a <code>Halt</code>, or an instruction it doesn't know (the server log says which). Cleared by RESET.</td></tr>
   </tbody>
 </table>
+<div class="diagram">
+<b>Back face (inputs): data in (y = 0.5); DATA READY, RUN, RESET (y = 1.5)</b>
+<svg viewBox="0 0 912 210" width="912" role="img" aria-label="back face">
+<rect class="face-in" x="26" y="18" width="834" height="172" rx="8"/>
+<circle class="pin-in" cx="846" cy="160" r="7"/>
+<text x="846" y="182" font-size="10.5" text-anchor="middle">D0</text>
+<text class="idx" x="846" y="148" font-size="9" text-anchor="middle">0</text>
+<circle class="pin-in" cx="820" cy="160" r="7"/>
+<text x="820" y="182" font-size="10.5" text-anchor="middle">D1</text>
+<text class="idx" x="820" y="148" font-size="9" text-anchor="middle">1</text>
+<circle class="pin-in" cx="794" cy="160" r="7"/>
+<text x="794" y="182" font-size="10.5" text-anchor="middle">D2</text>
+<text class="idx" x="794" y="148" font-size="9" text-anchor="middle">2</text>
+<circle class="pin-in" cx="768" cy="160" r="7"/>
+<text x="768" y="182" font-size="10.5" text-anchor="middle">D3</text>
+<text class="idx" x="768" y="148" font-size="9" text-anchor="middle">3</text>
+<circle class="pin-in" cx="742" cy="160" r="7"/>
+<text x="742" y="182" font-size="10.5" text-anchor="middle">D4</text>
+<text class="idx" x="742" y="148" font-size="9" text-anchor="middle">4</text>
+<circle class="pin-in" cx="716" cy="160" r="7"/>
+<text x="716" y="182" font-size="10.5" text-anchor="middle">D5</text>
+<text class="idx" x="716" y="148" font-size="9" text-anchor="middle">5</text>
+<circle class="pin-in" cx="690" cy="160" r="7"/>
+<text x="690" y="182" font-size="10.5" text-anchor="middle">D6</text>
+<text class="idx" x="690" y="148" font-size="9" text-anchor="middle">6</text>
+<circle class="pin-in" cx="664" cy="160" r="7"/>
+<text x="664" y="182" font-size="10.5" text-anchor="middle">D7</text>
+<text class="idx" x="664" y="148" font-size="9" text-anchor="middle">7</text>
+<circle class="pin-in" cx="638" cy="160" r="7"/>
+<text x="638" y="182" font-size="10.5" text-anchor="middle">D8</text>
+<text class="idx" x="638" y="148" font-size="9" text-anchor="middle">8</text>
+<circle class="pin-in" cx="612" cy="160" r="7"/>
+<text x="612" y="182" font-size="10.5" text-anchor="middle">D9</text>
+<text class="idx" x="612" y="148" font-size="9" text-anchor="middle">9</text>
+<circle class="pin-in" cx="586" cy="160" r="7"/>
+<text x="586" y="182" font-size="10.5" text-anchor="middle">D10</text>
+<text class="idx" x="586" y="148" font-size="9" text-anchor="middle">10</text>
+<circle class="pin-in" cx="560" cy="160" r="7"/>
+<text x="560" y="182" font-size="10.5" text-anchor="middle">D11</text>
+<text class="idx" x="560" y="148" font-size="9" text-anchor="middle">11</text>
+<circle class="pin-in" cx="534" cy="160" r="7"/>
+<text x="534" y="182" font-size="10.5" text-anchor="middle">D12</text>
+<text class="idx" x="534" y="148" font-size="9" text-anchor="middle">12</text>
+<circle class="pin-in" cx="508" cy="160" r="7"/>
+<text x="508" y="182" font-size="10.5" text-anchor="middle">D13</text>
+<text class="idx" x="508" y="148" font-size="9" text-anchor="middle">13</text>
+<circle class="pin-in" cx="482" cy="160" r="7"/>
+<text x="482" y="182" font-size="10.5" text-anchor="middle">D14</text>
+<text class="idx" x="482" y="148" font-size="9" text-anchor="middle">14</text>
+<circle class="pin-in" cx="456" cy="160" r="7"/>
+<text x="456" y="182" font-size="10.5" text-anchor="middle">D15</text>
+<text class="idx" x="456" y="148" font-size="9" text-anchor="middle">15</text>
+<circle class="pin-in" cx="430" cy="160" r="7"/>
+<text x="430" y="182" font-size="10.5" text-anchor="middle">D16</text>
+<text class="idx" x="430" y="148" font-size="9" text-anchor="middle">16</text>
+<circle class="pin-in" cx="404" cy="160" r="7"/>
+<text x="404" y="182" font-size="10.5" text-anchor="middle">D17</text>
+<text class="idx" x="404" y="148" font-size="9" text-anchor="middle">17</text>
+<circle class="pin-in" cx="378" cy="160" r="7"/>
+<text x="378" y="182" font-size="10.5" text-anchor="middle">D18</text>
+<text class="idx" x="378" y="148" font-size="9" text-anchor="middle">18</text>
+<circle class="pin-in" cx="352" cy="160" r="7"/>
+<text x="352" y="182" font-size="10.5" text-anchor="middle">D19</text>
+<text class="idx" x="352" y="148" font-size="9" text-anchor="middle">19</text>
+<circle class="pin-in" cx="326" cy="160" r="7"/>
+<text x="326" y="182" font-size="10.5" text-anchor="middle">D20</text>
+<text class="idx" x="326" y="148" font-size="9" text-anchor="middle">20</text>
+<circle class="pin-in" cx="300" cy="160" r="7"/>
+<text x="300" y="182" font-size="10.5" text-anchor="middle">D21</text>
+<text class="idx" x="300" y="148" font-size="9" text-anchor="middle">21</text>
+<circle class="pin-in" cx="274" cy="160" r="7"/>
+<text x="274" y="182" font-size="10.5" text-anchor="middle">D22</text>
+<text class="idx" x="274" y="148" font-size="9" text-anchor="middle">22</text>
+<circle class="pin-in" cx="248" cy="160" r="7"/>
+<text x="248" y="182" font-size="10.5" text-anchor="middle">D23</text>
+<text class="idx" x="248" y="148" font-size="9" text-anchor="middle">23</text>
+<circle class="pin-in" cx="222" cy="160" r="7"/>
+<text x="222" y="182" font-size="10.5" text-anchor="middle">D24</text>
+<text class="idx" x="222" y="148" font-size="9" text-anchor="middle">24</text>
+<circle class="pin-in" cx="196" cy="160" r="7"/>
+<text x="196" y="182" font-size="10.5" text-anchor="middle">D25</text>
+<text class="idx" x="196" y="148" font-size="9" text-anchor="middle">25</text>
+<circle class="pin-in" cx="170" cy="160" r="7"/>
+<text x="170" y="182" font-size="10.5" text-anchor="middle">D26</text>
+<text class="idx" x="170" y="148" font-size="9" text-anchor="middle">26</text>
+<circle class="pin-in" cx="144" cy="160" r="7"/>
+<text x="144" y="182" font-size="10.5" text-anchor="middle">D27</text>
+<text class="idx" x="144" y="148" font-size="9" text-anchor="middle">27</text>
+<circle class="pin-in" cx="118" cy="160" r="7"/>
+<text x="118" y="182" font-size="10.5" text-anchor="middle">D28</text>
+<text class="idx" x="118" y="148" font-size="9" text-anchor="middle">28</text>
+<circle class="pin-in" cx="92" cy="160" r="7"/>
+<text x="92" y="182" font-size="10.5" text-anchor="middle">D29</text>
+<text class="idx" x="92" y="148" font-size="9" text-anchor="middle">29</text>
+<circle class="pin-in" cx="66" cy="160" r="7"/>
+<text x="66" y="182" font-size="10.5" text-anchor="middle">D30</text>
+<text class="idx" x="66" y="148" font-size="9" text-anchor="middle">30</text>
+<circle class="pin-in" cx="40" cy="160" r="7"/>
+<text x="40" y="182" font-size="10.5" text-anchor="middle">D31</text>
+<text class="idx" x="40" y="148" font-size="9" text-anchor="middle">31</text>
+<circle class="pin-in" cx="40" cy="100" r="7"/>
+<text x="40" y="88" font-size="10.5" text-anchor="middle">RDY</text>
+<text class="idx" x="40" y="120" font-size="9" text-anchor="middle">32</text>
+<circle class="pin-in" cx="66" cy="100" r="7"/>
+<text x="66" y="88" font-size="10.5" text-anchor="middle">RUN</text>
+<text class="idx" x="66" y="120" font-size="9" text-anchor="middle">33</text>
+<circle class="pin-in" cx="92" cy="100" r="7"/>
+<text x="92" y="88" font-size="10.5" text-anchor="middle">RST</text>
+<text class="idx" x="92" y="120" font-size="9" text-anchor="middle">34</text>
+</svg>
+<b>Front face (outputs): address (y = 0.5), data out (y = 1.5), the bus's control and HALTED (y = 2.5)</b>
+<svg viewBox="0 0 912 210" width="912" role="img" aria-label="front face">
+<rect class="face-out" x="26" y="18" width="834" height="172" rx="8"/>
+<circle class="pin-out" cx="846" cy="160" r="7"/>
+<text x="846" y="182" font-size="10.5" text-anchor="middle">A0</text>
+<text class="idx" x="846" y="148" font-size="9" text-anchor="middle">0</text>
+<circle class="pin-out" cx="820" cy="160" r="7"/>
+<text x="820" y="182" font-size="10.5" text-anchor="middle">A1</text>
+<text class="idx" x="820" y="148" font-size="9" text-anchor="middle">1</text>
+<circle class="pin-out" cx="794" cy="160" r="7"/>
+<text x="794" y="182" font-size="10.5" text-anchor="middle">A2</text>
+<text class="idx" x="794" y="148" font-size="9" text-anchor="middle">2</text>
+<circle class="pin-out" cx="768" cy="160" r="7"/>
+<text x="768" y="182" font-size="10.5" text-anchor="middle">A3</text>
+<text class="idx" x="768" y="148" font-size="9" text-anchor="middle">3</text>
+<circle class="pin-out" cx="742" cy="160" r="7"/>
+<text x="742" y="182" font-size="10.5" text-anchor="middle">A4</text>
+<text class="idx" x="742" y="148" font-size="9" text-anchor="middle">4</text>
+<circle class="pin-out" cx="716" cy="160" r="7"/>
+<text x="716" y="182" font-size="10.5" text-anchor="middle">A5</text>
+<text class="idx" x="716" y="148" font-size="9" text-anchor="middle">5</text>
+<circle class="pin-out" cx="690" cy="160" r="7"/>
+<text x="690" y="182" font-size="10.5" text-anchor="middle">A6</text>
+<text class="idx" x="690" y="148" font-size="9" text-anchor="middle">6</text>
+<circle class="pin-out" cx="664" cy="160" r="7"/>
+<text x="664" y="182" font-size="10.5" text-anchor="middle">A7</text>
+<text class="idx" x="664" y="148" font-size="9" text-anchor="middle">7</text>
+<circle class="pin-out" cx="638" cy="160" r="7"/>
+<text x="638" y="182" font-size="10.5" text-anchor="middle">A8</text>
+<text class="idx" x="638" y="148" font-size="9" text-anchor="middle">8</text>
+<circle class="pin-out" cx="612" cy="160" r="7"/>
+<text x="612" y="182" font-size="10.5" text-anchor="middle">A9</text>
+<text class="idx" x="612" y="148" font-size="9" text-anchor="middle">9</text>
+<circle class="pin-out" cx="586" cy="160" r="7"/>
+<text x="586" y="182" font-size="10.5" text-anchor="middle">A10</text>
+<text class="idx" x="586" y="148" font-size="9" text-anchor="middle">10</text>
+<circle class="pin-out" cx="560" cy="160" r="7"/>
+<text x="560" y="182" font-size="10.5" text-anchor="middle">A11</text>
+<text class="idx" x="560" y="148" font-size="9" text-anchor="middle">11</text>
+<circle class="pin-out" cx="534" cy="160" r="7"/>
+<text x="534" y="182" font-size="10.5" text-anchor="middle">A12</text>
+<text class="idx" x="534" y="148" font-size="9" text-anchor="middle">12</text>
+<circle class="pin-out" cx="508" cy="160" r="7"/>
+<text x="508" y="182" font-size="10.5" text-anchor="middle">A13</text>
+<text class="idx" x="508" y="148" font-size="9" text-anchor="middle">13</text>
+<circle class="pin-out" cx="482" cy="160" r="7"/>
+<text x="482" y="182" font-size="10.5" text-anchor="middle">A14</text>
+<text class="idx" x="482" y="148" font-size="9" text-anchor="middle">14</text>
+<circle class="pin-out" cx="456" cy="160" r="7"/>
+<text x="456" y="182" font-size="10.5" text-anchor="middle">A15</text>
+<text class="idx" x="456" y="148" font-size="9" text-anchor="middle">15</text>
+<circle class="pin-out" cx="430" cy="160" r="7"/>
+<text x="430" y="182" font-size="10.5" text-anchor="middle">A16</text>
+<text class="idx" x="430" y="148" font-size="9" text-anchor="middle">16</text>
+<circle class="pin-out" cx="404" cy="160" r="7"/>
+<text x="404" y="182" font-size="10.5" text-anchor="middle">A17</text>
+<text class="idx" x="404" y="148" font-size="9" text-anchor="middle">17</text>
+<circle class="pin-out" cx="378" cy="160" r="7"/>
+<text x="378" y="182" font-size="10.5" text-anchor="middle">A18</text>
+<text class="idx" x="378" y="148" font-size="9" text-anchor="middle">18</text>
+<circle class="pin-out" cx="352" cy="160" r="7"/>
+<text x="352" y="182" font-size="10.5" text-anchor="middle">A19</text>
+<text class="idx" x="352" y="148" font-size="9" text-anchor="middle">19</text>
+<circle class="pin-out" cx="326" cy="160" r="7"/>
+<text x="326" y="182" font-size="10.5" text-anchor="middle">A20</text>
+<text class="idx" x="326" y="148" font-size="9" text-anchor="middle">20</text>
+<circle class="pin-out" cx="300" cy="160" r="7"/>
+<text x="300" y="182" font-size="10.5" text-anchor="middle">A21</text>
+<text class="idx" x="300" y="148" font-size="9" text-anchor="middle">21</text>
+<circle class="pin-out" cx="274" cy="160" r="7"/>
+<text x="274" y="182" font-size="10.5" text-anchor="middle">A22</text>
+<text class="idx" x="274" y="148" font-size="9" text-anchor="middle">22</text>
+<circle class="pin-out" cx="248" cy="160" r="7"/>
+<text x="248" y="182" font-size="10.5" text-anchor="middle">A23</text>
+<text class="idx" x="248" y="148" font-size="9" text-anchor="middle">23</text>
+<circle class="pin-out" cx="222" cy="160" r="7"/>
+<text x="222" y="182" font-size="10.5" text-anchor="middle">A24</text>
+<text class="idx" x="222" y="148" font-size="9" text-anchor="middle">24</text>
+<circle class="pin-out" cx="196" cy="160" r="7"/>
+<text x="196" y="182" font-size="10.5" text-anchor="middle">A25</text>
+<text class="idx" x="196" y="148" font-size="9" text-anchor="middle">25</text>
+<circle class="pin-out" cx="170" cy="160" r="7"/>
+<text x="170" y="182" font-size="10.5" text-anchor="middle">A26</text>
+<text class="idx" x="170" y="148" font-size="9" text-anchor="middle">26</text>
+<circle class="pin-out" cx="144" cy="160" r="7"/>
+<text x="144" y="182" font-size="10.5" text-anchor="middle">A27</text>
+<text class="idx" x="144" y="148" font-size="9" text-anchor="middle">27</text>
+<circle class="pin-out" cx="118" cy="160" r="7"/>
+<text x="118" y="182" font-size="10.5" text-anchor="middle">A28</text>
+<text class="idx" x="118" y="148" font-size="9" text-anchor="middle">28</text>
+<circle class="pin-out" cx="92" cy="160" r="7"/>
+<text x="92" y="182" font-size="10.5" text-anchor="middle">A29</text>
+<text class="idx" x="92" y="148" font-size="9" text-anchor="middle">29</text>
+<circle class="pin-out" cx="66" cy="160" r="7"/>
+<text x="66" y="182" font-size="10.5" text-anchor="middle">A30</text>
+<text class="idx" x="66" y="148" font-size="9" text-anchor="middle">30</text>
+<circle class="pin-out" cx="40" cy="160" r="7"/>
+<text x="40" y="182" font-size="10.5" text-anchor="middle">A31</text>
+<text class="idx" x="40" y="148" font-size="9" text-anchor="middle">31</text>
+<circle class="pin-out" cx="846" cy="100" r="7"/>
+<text x="846" y="88" font-size="10.5" text-anchor="middle">Q0</text>
+<text class="idx" x="846" y="120" font-size="9" text-anchor="middle">32</text>
+<circle class="pin-out" cx="820" cy="100" r="7"/>
+<text x="820" y="88" font-size="10.5" text-anchor="middle">Q1</text>
+<text class="idx" x="820" y="120" font-size="9" text-anchor="middle">33</text>
+<circle class="pin-out" cx="794" cy="100" r="7"/>
+<text x="794" y="88" font-size="10.5" text-anchor="middle">Q2</text>
+<text class="idx" x="794" y="120" font-size="9" text-anchor="middle">34</text>
+<circle class="pin-out" cx="768" cy="100" r="7"/>
+<text x="768" y="88" font-size="10.5" text-anchor="middle">Q3</text>
+<text class="idx" x="768" y="120" font-size="9" text-anchor="middle">35</text>
+<circle class="pin-out" cx="742" cy="100" r="7"/>
+<text x="742" y="88" font-size="10.5" text-anchor="middle">Q4</text>
+<text class="idx" x="742" y="120" font-size="9" text-anchor="middle">36</text>
+<circle class="pin-out" cx="716" cy="100" r="7"/>
+<text x="716" y="88" font-size="10.5" text-anchor="middle">Q5</text>
+<text class="idx" x="716" y="120" font-size="9" text-anchor="middle">37</text>
+<circle class="pin-out" cx="690" cy="100" r="7"/>
+<text x="690" y="88" font-size="10.5" text-anchor="middle">Q6</text>
+<text class="idx" x="690" y="120" font-size="9" text-anchor="middle">38</text>
+<circle class="pin-out" cx="664" cy="100" r="7"/>
+<text x="664" y="88" font-size="10.5" text-anchor="middle">Q7</text>
+<text class="idx" x="664" y="120" font-size="9" text-anchor="middle">39</text>
+<circle class="pin-out" cx="638" cy="100" r="7"/>
+<text x="638" y="88" font-size="10.5" text-anchor="middle">Q8</text>
+<text class="idx" x="638" y="120" font-size="9" text-anchor="middle">40</text>
+<circle class="pin-out" cx="612" cy="100" r="7"/>
+<text x="612" y="88" font-size="10.5" text-anchor="middle">Q9</text>
+<text class="idx" x="612" y="120" font-size="9" text-anchor="middle">41</text>
+<circle class="pin-out" cx="586" cy="100" r="7"/>
+<text x="586" y="88" font-size="10.5" text-anchor="middle">Q10</text>
+<text class="idx" x="586" y="120" font-size="9" text-anchor="middle">42</text>
+<circle class="pin-out" cx="560" cy="100" r="7"/>
+<text x="560" y="88" font-size="10.5" text-anchor="middle">Q11</text>
+<text class="idx" x="560" y="120" font-size="9" text-anchor="middle">43</text>
+<circle class="pin-out" cx="534" cy="100" r="7"/>
+<text x="534" y="88" font-size="10.5" text-anchor="middle">Q12</text>
+<text class="idx" x="534" y="120" font-size="9" text-anchor="middle">44</text>
+<circle class="pin-out" cx="508" cy="100" r="7"/>
+<text x="508" y="88" font-size="10.5" text-anchor="middle">Q13</text>
+<text class="idx" x="508" y="120" font-size="9" text-anchor="middle">45</text>
+<circle class="pin-out" cx="482" cy="100" r="7"/>
+<text x="482" y="88" font-size="10.5" text-anchor="middle">Q14</text>
+<text class="idx" x="482" y="120" font-size="9" text-anchor="middle">46</text>
+<circle class="pin-out" cx="456" cy="100" r="7"/>
+<text x="456" y="88" font-size="10.5" text-anchor="middle">Q15</text>
+<text class="idx" x="456" y="120" font-size="9" text-anchor="middle">47</text>
+<circle class="pin-out" cx="430" cy="100" r="7"/>
+<text x="430" y="88" font-size="10.5" text-anchor="middle">Q16</text>
+<text class="idx" x="430" y="120" font-size="9" text-anchor="middle">48</text>
+<circle class="pin-out" cx="404" cy="100" r="7"/>
+<text x="404" y="88" font-size="10.5" text-anchor="middle">Q17</text>
+<text class="idx" x="404" y="120" font-size="9" text-anchor="middle">49</text>
+<circle class="pin-out" cx="378" cy="100" r="7"/>
+<text x="378" y="88" font-size="10.5" text-anchor="middle">Q18</text>
+<text class="idx" x="378" y="120" font-size="9" text-anchor="middle">50</text>
+<circle class="pin-out" cx="352" cy="100" r="7"/>
+<text x="352" y="88" font-size="10.5" text-anchor="middle">Q19</text>
+<text class="idx" x="352" y="120" font-size="9" text-anchor="middle">51</text>
+<circle class="pin-out" cx="326" cy="100" r="7"/>
+<text x="326" y="88" font-size="10.5" text-anchor="middle">Q20</text>
+<text class="idx" x="326" y="120" font-size="9" text-anchor="middle">52</text>
+<circle class="pin-out" cx="300" cy="100" r="7"/>
+<text x="300" y="88" font-size="10.5" text-anchor="middle">Q21</text>
+<text class="idx" x="300" y="120" font-size="9" text-anchor="middle">53</text>
+<circle class="pin-out" cx="274" cy="100" r="7"/>
+<text x="274" y="88" font-size="10.5" text-anchor="middle">Q22</text>
+<text class="idx" x="274" y="120" font-size="9" text-anchor="middle">54</text>
+<circle class="pin-out" cx="248" cy="100" r="7"/>
+<text x="248" y="88" font-size="10.5" text-anchor="middle">Q23</text>
+<text class="idx" x="248" y="120" font-size="9" text-anchor="middle">55</text>
+<circle class="pin-out" cx="222" cy="100" r="7"/>
+<text x="222" y="88" font-size="10.5" text-anchor="middle">Q24</text>
+<text class="idx" x="222" y="120" font-size="9" text-anchor="middle">56</text>
+<circle class="pin-out" cx="196" cy="100" r="7"/>
+<text x="196" y="88" font-size="10.5" text-anchor="middle">Q25</text>
+<text class="idx" x="196" y="120" font-size="9" text-anchor="middle">57</text>
+<circle class="pin-out" cx="170" cy="100" r="7"/>
+<text x="170" y="88" font-size="10.5" text-anchor="middle">Q26</text>
+<text class="idx" x="170" y="120" font-size="9" text-anchor="middle">58</text>
+<circle class="pin-out" cx="144" cy="100" r="7"/>
+<text x="144" y="88" font-size="10.5" text-anchor="middle">Q27</text>
+<text class="idx" x="144" y="120" font-size="9" text-anchor="middle">59</text>
+<circle class="pin-out" cx="118" cy="100" r="7"/>
+<text x="118" y="88" font-size="10.5" text-anchor="middle">Q28</text>
+<text class="idx" x="118" y="120" font-size="9" text-anchor="middle">60</text>
+<circle class="pin-out" cx="92" cy="100" r="7"/>
+<text x="92" y="88" font-size="10.5" text-anchor="middle">Q29</text>
+<text class="idx" x="92" y="120" font-size="9" text-anchor="middle">61</text>
+<circle class="pin-out" cx="66" cy="100" r="7"/>
+<text x="66" y="88" font-size="10.5" text-anchor="middle">Q30</text>
+<text class="idx" x="66" y="120" font-size="9" text-anchor="middle">62</text>
+<circle class="pin-out" cx="40" cy="100" r="7"/>
+<text x="40" y="88" font-size="10.5" text-anchor="middle">Q31</text>
+<text class="idx" x="40" y="120" font-size="9" text-anchor="middle">63</text>
+<circle class="pin-out" cx="40" cy="40" r="7"/>
+<text x="40" y="28" font-size="10.5" text-anchor="middle">RD</text>
+<text class="idx" x="40" y="60" font-size="9" text-anchor="middle">64</text>
+<circle class="pin-out" cx="66" cy="40" r="7"/>
+<text x="66" y="28" font-size="10.5" text-anchor="middle">WR</text>
+<text class="idx" x="66" y="60" font-size="9" text-anchor="middle">65</text>
+<circle class="pin-out" cx="92" cy="40" r="7"/>
+<text x="92" y="28" font-size="10.5" text-anchor="middle">BY</text>
+<text class="idx" x="92" y="60" font-size="9" text-anchor="middle">66</text>
+<circle class="pin-out" cx="118" cy="40" r="7"/>
+<text x="118" y="28" font-size="10.5" text-anchor="middle">WD</text>
+<text class="idx" x="118" y="60" font-size="9" text-anchor="middle">67</text>
+<circle class="pin-out" cx="144" cy="40" r="7"/>
+<text x="144" y="28" font-size="10.5" text-anchor="middle">DW</text>
+<text class="idx" x="144" y="60" font-size="9" text-anchor="middle">68</text>
+<circle class="pin-out" cx="170" cy="40" r="7"/>
+<text x="170" y="28" font-size="10.5" text-anchor="middle">HLT</text>
+<text class="idx" x="170" y="60" font-size="9" text-anchor="middle">69</text>
+</svg>
+<p>Each peg is drawn at its <code>x</code> position in the block's prefab, from <code>x</code> = 0 on the left: both faces as seen from the front (from behind, the back face is mirrored: D0 on your left), as on the <a href="ram32.html">32-bit RAM</a>'s page. Small grey numbers are the peg indexes in the code. D is data in, Q data out, A the address; RDY is DATA READY, RST RESET, RD READ, WR WRITE, BY BYTE, WD WORD, DW DWORD, HLT HALTED.</p>
+</div>
 
 <h2>The bus</h2>
 <ul>
@@ -54,8 +380,8 @@ in flight arrives after the reload. RAM keeps its own behaviour (<a href="ram.ht
 <p>The CPU's core is built from the lw-compiler repo (<code>emu/build-native.sh</code> copies it here), so the block runs
 the same code as the emulator the compiler is tested with. It needs a 64-bit Linux server (glibc 2.16 or newer) and
 nothing else. At start the server log says <code>lw32core loaded ...</code>, or why it didn't load; without it the block
-does nothing. <code>tests/cpu-block</code> runs this block's code outside the game (<code>dotnet run</code>, see its
-<code>Program.cs</code>).</p>
+does nothing. lw-compiler's <code>emu/run-core-tests.sh</code> runs this block's code outside the game
+(<code>emu/core/blocktest</code>, and with the 32-bit RAM <code>emu/core/bustest</code>).</p>
 </main>
 <footer>Eve's Components, a Logic World mod. These pages are in the mod's <code>docs/</code> folder.</footer>
 </body>
