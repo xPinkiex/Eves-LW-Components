@@ -385,8 +385,8 @@ every 997 ticks, and at O1 every 7 (290,000 reloads, in the middle of accesses):
 
 <h2>Contents</h2>
 <ul>
-  <li>Press <b>X</b> at the block for <a href="editor.html">the editor</a>, as on Eve's RAM. It loads at most 64 KB, from address 0;
-    <code>@file</code> works the same.</li>
+  <li>Press <b>X</b> at the block for <a href="editor.html">the editor</a>, as on Eve's RAM. It loads up to 1 GiB from address 0
+    (<code>@0x</code> takes up to 8 hex digits); <code>@file</code> works the same, so one file holds a whole program.</li>
   <li><b>What the world keeps:</b> the editor's text, if there is one (a reload starts from it again), else every page that isn't
     all zero, and the handshake's state.</li>
 </ul>

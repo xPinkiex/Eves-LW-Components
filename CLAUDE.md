@@ -16,7 +16,7 @@ Logic World mod (C# server + client, `.jecs` component definitions). Read `READM
 - Backs the whole 4 GiB sparsely: 8192 pages of 512 KiB, allocated on first non-zero write.
 - Persistence: editor source text if there is any (runtime writes are dropped, as in Eve's RAM), otherwise the magic
   `EVERAM32\n` followed by (uint32 page index, 512 KiB) for every page that is not all zero.
-- The editor still loads at most 64 KiB at address 0 (limit in `RamParser`).
+- The editor and `@file` load up to 1 GiB from address 0 (`IRomHost.MaxImageBytes`; Eve's RAM and the microcode ROM 64 KiB).
 
 ## Owner's plans (not started)
 - Bit 31 of the address is a page select in the owner's CPU: low half RAM, high half hardware. The block needs no gating.

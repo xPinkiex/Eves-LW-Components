@@ -14,7 +14,7 @@ using System.Text;
 //   0xFF            hex byte(s)
 //   0XFF            (case-insensitive prefix)
 //   0b11001000      binary byte(s) (up to 16 bits → 2 bytes)
-//   @0xADDR         set current address (4 hex digits max, 0–65535)
+//   @0xADDR         set current address (up to 8 hex digits, below the block's size)
 //   @file PATH      load a file at the current address (see below)
 //   // comment      single-line comment (ignored until newline)
 //   #  comment      single-line comment (ignored until newline)
@@ -155,17 +155,24 @@ namespace EVE.Components.Shared
             return text != null && text.IndexOf("@file", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        public static ParseResult Parse(string text)
+        /// <summary>The image size of Eve's RAM and the microcode ROM's editor: 64 KB.</summary>
+        public const int DefaultMaxBytes = 65536;
+
+        /// <summary>
+        /// Parses editor text into an image of at most maxBytes bytes from address 0 (each block
+        /// says its size: IRomHost.MaxImageBytes). The buffer grows as data is written.
+        /// </summary>
+        public static ParseResult Parse(string text, int maxBytes = DefaultMaxBytes)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
                 return new ParseResult { Success = true, Data = new byte[0], ByteCount = 0 };
             }
 
-            var rom = new byte[65536];
+            var img = new Image { Bytes = new byte[Math.Min(maxBytes, DefaultMaxBytes)], Max = maxBytes };
             int currentAddress = 0;
             int end = 0;
-            string error = ParseInto(text, rom, ref currentAddress, ref end, 0, null);
+            string error = ParseInto(text, img, ref currentAddress, ref end, 0, null);
             if (error != null)
             {
                 return new ParseResult { Success = false, Error = error };
@@ -173,7 +180,7 @@ namespace EVE.Components.Shared
 
             int actualLength = Math.Max(currentAddress, end);
             byte[] result = new byte[actualLength];
-            Array.Copy(rom, result, actualLength);
+            Array.Copy(img.Bytes, result, Math.Min(actualLength, img.Bytes.Length));
 
             return new ParseResult
             {
@@ -201,7 +208,14 @@ namespace EVE.Components.Shared
         // Parses `text` into `rom` starting at currentAddress. `end` is raised to the end of the
         // highest byte written. `source` names the file being parsed (null for the editor), for
         // error messages. Returns null on success, otherwise the error.
-        private static string ParseInto(string text, byte[] rom, ref int currentAddress, ref int end,
+        // The image being built: its bytes (grown on demand) and the most it may hold.
+        private sealed class Image
+        {
+            public byte[] Bytes;
+            public int Max;
+        }
+
+        private static string ParseInto(string text, Image rom, ref int currentAddress, ref int end,
                                          int depth, string source)
         {
             string at = source == null ? "" : $" in {source}";
@@ -265,19 +279,23 @@ namespace EVE.Components.Shared
                         return $"Expected '0x' or 'file' after '@' at token #{tokenIndex}{at}";
                     }
                     i += 2;
-                    int addr = 0;
+                    long addr = 0;
                     int hexDigits = 0;
                     while (i < len && IsHexDigit(text[i]))
                     {
-                        addr = (addr << 4) | HexValue(text[i]);
+                        addr = (addr << 4) + HexValue(text[i]);
                         hexDigits++;
                         i++;
-                        if (hexDigits > 4)
+                        if (hexDigits > 8)
                         {
                             return $"Address too large at token #{tokenIndex}{at}";
                         }
                     }
-                    currentAddress = addr;
+                    if (addr >= rom.Max)
+                    {
+                        return $"Address 0x{addr:X} is past this block's {rom.Max} bytes at token #{tokenIndex}{at}";
+                    }
+                    currentAddress = (int)addr;
                     tokenIndex++;
                     continue;
                 }
@@ -306,7 +324,7 @@ namespace EVE.Components.Shared
                         int hi = (hiPos >= 0) ? HexValue(text[digitStart + hiPos]) : 0;
                         if (!Put(rom, ref currentAddress, ref end, (byte)((hi << 4) | lo)))
                         {
-                            return $"Address {currentAddress} exceeds 65535 at token #{tokenIndex}{at}";
+                            return $"Address {currentAddress} exceeds {rom.Max - 1} at token #{tokenIndex}{at}";
                         }
                     }
                     tokenIndex++;
@@ -334,7 +352,7 @@ namespace EVE.Components.Shared
                     }
                     if (!Put(rom, ref currentAddress, ref end, (byte)val))
                     {
-                        return $"Address {currentAddress} exceeds 65535 at token #{tokenIndex}{at}";
+                        return $"Address {currentAddress} exceeds {rom.Max - 1} at token #{tokenIndex}{at}";
                     }
                     tokenIndex++;
                     continue;
@@ -346,7 +364,7 @@ namespace EVE.Components.Shared
             return null;
         }
 
-        private static string LoadFile(string path, byte[] rom, ref int currentAddress, ref int end, int depth)
+        private static string LoadFile(string path, Image rom, ref int currentAddress, ref int end, int depth)
         {
             if (depth > MaxIncludeDepth)
                 return $"@file {path}: nested more than {MaxIncludeDepth} levels deep (does a file include itself?)";
@@ -366,22 +384,33 @@ namespace EVE.Components.Shared
 
             if (full.EndsWith(".bin", StringComparison.OrdinalIgnoreCase))
             {
-                if (currentAddress + bytes.Length > rom.Length)
-                    return $"@file {path}: {bytes.Length} bytes at address {currentAddress} go past 65535";
-                foreach (byte b in bytes)
-                    Put(rom, ref currentAddress, ref end, b);
+                if ((long)currentAddress + bytes.Length > rom.Max)
+                    return $"@file {path}: {bytes.Length} bytes at address {currentAddress} go past {rom.Max - 1}";
+                Grow(rom, currentAddress + bytes.Length);
+                Buffer.BlockCopy(bytes, 0, rom.Bytes, currentAddress, bytes.Length);
+                currentAddress += bytes.Length;
+                if (currentAddress > end) end = currentAddress;
                 return null;
             }
 
             return ParseInto(Encoding.UTF8.GetString(bytes), rom, ref currentAddress, ref end, depth, path);
         }
 
-        private static bool Put(byte[] rom, ref int currentAddress, ref int end, byte value)
+        private static bool Put(Image rom, ref int currentAddress, ref int end, byte value)
         {
-            if (currentAddress >= rom.Length) return false;
-            rom[currentAddress++] = value;
+            if (currentAddress >= rom.Max) return false;
+            Grow(rom, currentAddress + 1);
+            rom.Bytes[currentAddress++] = value;
             if (currentAddress > end) end = currentAddress;
             return true;
+        }
+
+        // Makes rom.Bytes at least `size` bytes (doubling, at most rom.Max).
+        private static void Grow(Image rom, int size)
+        {
+            if (size <= rom.Bytes.Length) return;
+            long n = Math.Max((long)size, Math.Min((long)rom.Bytes.Length * 2, rom.Max));
+            Array.Resize(ref rom.Bytes, (int)n);
         }
 
         private static bool IsHexDigit(char c)

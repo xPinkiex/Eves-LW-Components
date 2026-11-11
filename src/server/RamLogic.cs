@@ -22,6 +22,8 @@ namespace EVE.Components.Server
 
         public override bool HasPersistentValues => true;
 
+        public int MaxImageBytes => RamParser.DefaultMaxBytes;
+
         public void SetRomData(byte[] data, string sourceText)
         {
             _romData = data ?? new byte[0];

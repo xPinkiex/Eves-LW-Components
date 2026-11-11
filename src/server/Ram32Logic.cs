@@ -110,6 +110,9 @@ namespace EVE.Components.Server
 
         // ---- editor interface ----
 
+        /// <summary>The editor and @file load up to 1 GiB from address 0 (the RAM holds 4 GiB).</summary>
+        public int MaxImageBytes => 1 << 30;
+
         public void SetRomData(byte[] data, string sourceText)
         {
             LoadImage(data);
@@ -248,7 +251,7 @@ namespace EVE.Components.Server
                 if (kind == (byte)'T')
                 {
                     string saved = Encoding.UTF8.GetString(data, pos, data.Length - pos);
-                    var parsed = RamParser.Parse(saved);
+                    var parsed = RamParser.Parse(saved, MaxImageBytes);
                     _sourceText = saved;
                     if (parsed.Success)
                         LoadImage(parsed.Data);
@@ -271,7 +274,7 @@ namespace EVE.Components.Server
             }
             else if (data != null && data.Length > 0 && RamParser.TryDecodeUtf8(data, out string text))
             {
-                var result = RamParser.Parse(text);
+                var result = RamParser.Parse(text, MaxImageBytes);
                 if (result.Success && result.ByteCount > 0)
                 {
                     _sourceText = text;

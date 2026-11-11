@@ -82,10 +82,13 @@ namespace EVE.Components.Server
 
         public void UpdateRom(ComponentAddress address, byte[] data, string sourceText, Connection sender)
         {
-            // Text with @file comes unparsed (data == null): only the server reads those files.
+            // Text with @file comes unparsed (data == null): only the server reads those files,
+            // as big as the block takes (Eve's RAM 64 KB, Eve's RAM (32-bit) more).
             if (data == null && RamParser.HasFileDirective(sourceText))
             {
-                var result = RamParser.Parse(sourceText);
+                int max = (_circuits.LookupComponent(address) as IRomHost)?.MaxImageBytes
+                          ?? RamParser.DefaultMaxBytes;
+                var result = RamParser.Parse(sourceText, max);
                 Reply(sender, new RamResultPacket
                 {
                     ComponentAddress = address,
