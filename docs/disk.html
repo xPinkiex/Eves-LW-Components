@@ -392,7 +392,7 @@ not in the world: every write goes straight to the file, in order. It has no edi
 <div class="note"><b>Checked outside the game:</b> lw-compiler's <code>emu/run-core-tests.sh</code> runs <code>tests/disk_test.c</code>
 on the LW32 CPU block with Eve's RAM (32-bit) and this block, every block saved and reloaded every 97 ticks: a first run on a new
 file writes a pattern (bytes, halfwords, unaligned words, the last word), a second run on the same file finds all of it; then every
-7 ticks with a second disk block on the bus, which stays silent. Not yet run in the game.</div>
+7 ticks with a second disk block on the bus, which stays silent. Ran in the game on 2026-11-12 with LW-CPU-OS on the LW32 CPU (2g): the disk mounted, programs loaded.</div>
 
 <h2>The file and the world</h2>
 <ul>
