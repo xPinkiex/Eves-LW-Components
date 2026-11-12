@@ -144,6 +144,16 @@ namespace EVE.Components.Client.Windows
             }
         }
 
+        private static readonly byte[] Ram32Magic = Encoding.ASCII.GetBytes("EVERAM32\n");
+
+        private static bool StartsWith(byte[] data, byte[] prefix)
+        {
+            if (data.Length < prefix.Length) return false;
+            for (int i = 0; i < prefix.Length; i++)
+                if (data[i] != prefix[i]) return false;
+            return true;
+        }
+
         private void PreFillFromRom(ComponentAddress address)
         {
             if (inputField == null) return;
@@ -155,6 +165,17 @@ namespace EVE.Components.Client.Windows
                 if (data == null || data.Length == 0)
                 {
                     inputField.text = "";
+                    return;
+                }
+
+                // Eve's RAM (32-bit) saves "EVERAM32\n", 7 bytes of handshake, then 'T' and the
+                // editor's text, or 'P' and its pages (no text to show).
+                if (StartsWith(data, Ram32Magic) && data.Length >= Ram32Magic.Length + 7)
+                {
+                    int pos = Ram32Magic.Length + 7;
+                    inputField.text = data[pos - 1] == (byte)'T'
+                        ? Encoding.UTF8.GetString(data, pos, data.Length - pos)
+                        : "";
                     return;
                 }
 
