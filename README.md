@@ -13,6 +13,9 @@ Custom components for Logic World.
 - Rising edge of write-enable latches data-in at the addressed byte
 - Source text is persisted in the world save
 
+### Eve's Disk
+16 MB of storage on the LW32 CPU block's bus, with the pins and timing of Eve's RAM (32-bit), kept in a file: `disk.bin` in the save's `bins` folder (made if missing). Every write goes to the file in order; the world save keeps only the handshake, so the disk survives reloads and crashes and doesn't go back with an older save. No editor; one per world. Pins, wiring, the window (`0x90000000` on the LW32 `2g` map): [`docs/disk.html`](docs/disk.html).
+
 ### Eve's RAM (32-bit)
 Memory with a 32-bit byte address on the LW32 CPU block's bus: READ or WRITE for one tick with the size (BYTE, WORD, DWORD), DATA READY the next tick, a read's value the tick after (its data outputs are low otherwise). Backs 4 GiB sparsely (512 KiB pages on first write). Gate READ and WRITE with your address decoding. Pins, timing and wiring: [`docs/ram32.html`](docs/ram32.html).
 

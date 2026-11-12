@@ -7,13 +7,14 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<nav><div><a href="index.html" class="here">Overview</a><a href="ram.html">Eve's RAM</a><a href="ram32.html">Eve's RAM (32-bit)</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html">The ROM editor</a><a href="network-port.html">Eve's Network Port</a><a href="lw32-cpu.html">Eve's LW32 CPU</a><a href="relay.html">Normally-Closed Relay</a><a href="breakpoint.html">Eve's Breakpoint</a></div></nav>
+<nav><div><a href="index.html" class="here">Overview</a><a href="ram.html">Eve's RAM</a><a href="ram32.html">Eve's RAM (32-bit)</a><a href="disk.html">Eve's Disk</a><a href="microcode-rom.html">Eve's Microcode ROM</a><a href="editor.html">The ROM editor</a><a href="network-port.html">Eve's Network Port</a><a href="lw32-cpu.html">Eve's LW32 CPU</a><a href="relay.html">Normally-Closed Relay</a><a href="breakpoint.html">Eve's Breakpoint</a></div></nav>
 <main>
 <h1>Eve's Components</h1>
 <p class="sub">Custom components for Logic World, made for building CPUs: memory with an in-game editor, a microcode ROM, a network port, and debugging help.</p>
 <div class="cards">
   <a class="card" href="ram.html"><b><span class="swatch" style="background:#FF8800"></span>Eve's RAM</b><p>64 KB, byte-wide, 16 address bits. Loaded from the editor or a file.</p></a>
   <a class="card" href="ram32.html"><b><span class="swatch" style="background:#FFAA33"></span>Eve's RAM (32-bit)</b><p>32-bit address, the LW32 CPU block's bus: 1, 2 or 4 bytes, answered in one tick.</p></a>
+  <a class="card" href="disk.html"><b><span class="swatch" style="background:#55AA77"></span>Eve's Disk</b><p>16 MB on the LW32 CPU block's bus, kept in the save's <code>bins/disk.bin</code>.</p></a>
   <a class="card" href="microcode-rom.html"><b><span class="swatch" style="background:#88CCFF"></span>Eve's Microcode ROM</b><p>32-bit words, 16 address bits. For control words.</p></a>
   <a class="card" href="network-port.html"><b><span class="swatch" style="background:#3388CC"></span>Eve's Network Port</b><p>A byte pipe between the circuit and a TCP connection: terminals, web pages, networking.</p></a>
   <a class="card" href="lw32-cpu.html"><b><span class="swatch" style="background:#7744AA"></span>Eve's LW32 CPU</b><p>The LW32 CPU as one block on your bus: runs the same programs, a few times faster. In progress.</p></a>

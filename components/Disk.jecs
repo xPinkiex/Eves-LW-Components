@@ -1,0 +1,401 @@
+# Eve's Disk: the pins of Eve's RAM (32-bit), its 16 MB in the save's bins/disk.bin (docs/disk.html).
+Disk:
+    column: "EVE_Components"
+    category: "Memory"
+    prefab:
+        blocks:
+            -
+                color: 55AA77
+                position: (15.5, 0, 0.5)
+                scale: (32, 3, 2)
+        inputs:
+            # Row 1 (y=0.5): Address bits, back face, MSB on left
+            # Input index i = address bit i, at x = 31 - i
+            -
+                position: (31, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (30, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (29, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (28, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (27, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (26, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (25, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (24, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (23, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (22, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (21, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (20, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (19, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (18, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (17, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (16, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (15, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (14, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (13, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (12, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (11, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (10, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (9, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (8, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (7, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (6, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (5, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (4, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (3, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (2, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (1, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (0, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Row 2 (y=1.5): Write data bits, back face, MSB on left
+            # Input index 32 + i = data bit i, at x = 31 - i
+            -
+                position: (31, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (30, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (29, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (28, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (27, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (26, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (25, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (24, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (23, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (22, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (21, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (20, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (19, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (18, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (17, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (16, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (15, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (14, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (13, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (12, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (11, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (10, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (9, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (8, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (7, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (6, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (5, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (4, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (3, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (2, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (1, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (0, 1.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # Row 3 (y=2.5): the bus's control, in the order of the LW32 CPU block's outputs:
+            # 64 READ at x=0, 65 WRITE at x=1, 66 BYTE at x=2, 67 WORD at x=3, 68 DWORD at x=4.
+            # READ or WRITE for one tick starts an access (docs/disk.html)
+            -
+                position: (0, 2.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (1, 2.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (2, 2.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (3, 2.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            -
+                position: (4, 2.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+        outputs:
+            # Outputs 0-31 (y=0.5): data, only in a read's data tick. Output index i = bit i, at x = 31 - i
+            -
+                position: (31, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (30, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (29, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (28, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (27, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (26, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (25, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (24, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (23, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (22, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (21, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (20, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (19, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (18, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (17, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (16, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (15, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (14, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (13, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (12, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (11, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (10, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (9, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (8, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (7, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (6, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (5, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (4, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (3, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (2, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (1, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            -
+                position: (0, 0.5, 1.5)
+                rotation: (90, 0, 0)
+            # Output 32 (y=1.5, x=0): DATA READY, one tick, the tick after an access
+            -
+                position: (0, 1.5, 1.5)
+                rotation: (90, 0, 0)
+    logicCode: EVE.Components.Server.DiskLogic
+    placingRules:
+        offsetDimensions: (10, 3)
+        gridPlacingDimensions: (32, 5)
+        allowFineRotation: false
