@@ -19,7 +19,14 @@ namespace EVE.Components.Server
     /// The whole 4 GiB address space is backed, but memory is only reserved in 512 KiB pages
     /// when something is first written to them; untouched pages read as 0 and cost nothing.
     ///
-    /// Inputs: 0-31 address, 32-63 write data, 64 READ, 65 WRITE, 66 BYTE, 67 WORD, 68 DWORD.
+    /// RELOAD's rising edge parses the editor's text again, as the editor's Apply does: its
+    /// @file files are read anew, so a program rebuilt on the PC is loaded without the editor.
+    /// The RAM then holds the new image (what the program wrote is gone) and Restore goes back
+    /// to it. Without editor text, or when the text doesn't parse (a file missing), the RAM
+    /// keeps what it has and the server log says why.
+    ///
+    /// Inputs: 0-31 address, 32-63 write data, 64 READ, 65 WRITE, 66 BYTE, 67 WORD, 68 DWORD,
+    /// 69 RELOAD.
     /// Outputs: 0-31 data (only in a read's data tick), 32 DATA READY.
     /// </summary>
     public class Ram32Logic : LogicComponent, IRomHost
@@ -28,14 +35,14 @@ namespace EVE.Components.Server
         public const int PageSize = 1 << PageShift;
         public const int PageCount = 1 << (32 - PageShift);    // 8192
         public const int DataInBase = 32;
-        public const int Read = 64, Write = 65, Byte = 66, Word = 67, DWord = 68;   // inputs
+        public const int Read = 64, Write = 65, Byte = 66, Word = 67, DWord = 68, Reload = 69;   // inputs
         public const int DataOut = 0, Ready = 32;                                   // outputs
 
         // The bus handshake: what the next update puts on the outputs.
         private const int Idle = 0, ReadyThenData = 1, ReadyThenIdle = 2, DataThenIdle = 3;
         private int _phase;
         private uint _answer;                                  // a read's value, for its data tick
-        private bool _prevRead, _prevWrite;
+        private bool _prevRead, _prevWrite, _prevReload;
 
         private static readonly byte[] Magic = Encoding.ASCII.GetBytes("EVERAM32\n");
 
@@ -137,14 +144,35 @@ namespace EVE.Components.Server
             QueueLogicUpdate();
         }
 
+        /// <summary>RELOAD: the editor's text parsed again (its @file read anew), as Apply does.</summary>
+        private void Reparse()
+        {
+            if (_sourceText == null)
+            {
+                RamServer.Logger?.Warn("EVE_Components: RAM (32-bit) RELOAD: no editor text to load again");
+                return;
+            }
+            var parsed = RamParser.Parse(_sourceText, MaxImageBytes);
+            if (!parsed.Success)
+            {
+                RamServer.Logger?.Error($"EVE_Components: RAM (32-bit) RELOAD failed, the RAM is unchanged: {parsed.Error}");
+                return;
+            }
+            LoadImage(parsed.Data);
+            _originalPages = ClonePages(_pages);       // Restore goes back to the new image
+            RamServer.Logger?.Info($"EVE_Components: RAM (32-bit) RELOAD: {parsed.ByteCount} bytes");
+        }
+
         // ---- logic ----
 
         protected override void DoLogicUpdate()
         {
-            bool read = Inputs[Read].On, write = Inputs[Write].On;
+            bool read = Inputs[Read].On, write = Inputs[Write].On, reload = Inputs[Reload].On;
             bool newRead = read && !_prevRead, newWrite = write && !_prevWrite;
             _prevRead = read;
             _prevWrite = write;
+            if (reload && !_prevReload) Reparse();     // before an access of the same tick
+            _prevReload = reload;
 
             bool ready = false;
             uint data = 0;
@@ -190,7 +218,7 @@ namespace EVE.Components.Server
         }
 
         // ---- persistence ----
-        // "EVERAM32\n", the handshake (phase, the pending answer, the last READ and WRITE:
+        // "EVERAM32\n", the handshake (phase, the pending answer, the last READ, WRITE and RELOAD:
         // a save in the middle of an access answers it after the reload), then either 'T'
         // and the editor's source text (runtime writes are dropped, as in Eve's RAM), or 'P'
         // and, for each page that is not all zero, a uint32 page index (little-endian)
@@ -203,7 +231,7 @@ namespace EVE.Components.Server
                 stream.Write(Magic, 0, Magic.Length);
                 stream.WriteByte((byte)_phase);
                 stream.Write(BitConverter.GetBytes(_answer), 0, 4);
-                stream.WriteByte((byte)((_prevRead ? 1 : 0) | (_prevWrite ? 2 : 0)));
+                stream.WriteByte((byte)((_prevRead ? 1 : 0) | (_prevWrite ? 2 : 0) | (_prevReload ? 4 : 0)));
                 if (_sourceText != null)
                 {
                     stream.WriteByte((byte)'T');
@@ -238,7 +266,7 @@ namespace EVE.Components.Server
 
             _phase = Idle;
             _answer = 0;
-            _prevRead = _prevWrite = false;
+            _prevRead = _prevWrite = _prevReload = false;
             if (data != null && StartsWithMagic(data) && data.Length >= Magic.Length + 7)
             {
                 int pos = Magic.Length;
@@ -246,6 +274,7 @@ namespace EVE.Components.Server
                 _answer = BitConverter.ToUInt32(data, pos + 1);
                 _prevRead = (data[pos + 5] & 1) != 0;
                 _prevWrite = (data[pos + 5] & 2) != 0;
+                _prevReload = (data[pos + 5] & 4) != 0;   // RELOAD held high across a save: no second reload
                 byte kind = data[pos + 6];
                 pos += 7;
                 if (kind == (byte)'T')

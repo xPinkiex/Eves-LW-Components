@@ -214,7 +214,7 @@ reserves memory in 512 KiB pages when something is first written there. Untouche
 <text x="40" y="28" font-size="10.5" text-anchor="middle">D31</text>
 <text class="idx" x="40" y="60" font-size="9" text-anchor="middle">63</text>
 </svg>
-<b>Back face, top row (y = 2.5): the bus's control</b>
+<b>Back face, top row (y = 2.5): the bus's control, and RELOAD above A0 and D0</b>
 <svg viewBox="0 0 912 150" width="912" role="img" aria-label="back face control">
 <rect class="face-in" x="26" y="18" width="834" height="112" rx="8"/>
 <circle class="pin-in" cx="40" cy="40" r="7"/>
@@ -232,6 +232,9 @@ reserves memory in 512 KiB pages when something is first written there. Untouche
 <circle class="pin-in" cx="144" cy="40" r="7"/>
 <text x="144" y="28" font-size="10.5" text-anchor="middle">DW</text>
 <text class="idx" x="144" y="60" font-size="9" text-anchor="middle">68</text>
+<circle class="pin-in" cx="846" cy="40" r="7"/>
+<text x="846" y="28" font-size="10.5" text-anchor="middle">RL</text>
+<text class="idx" x="846" y="60" font-size="9" text-anchor="middle">69</text>
 </svg>
 <b>Front face: data out (y = 0.5) and DATA READY (y = 1.5)</b>
 <svg viewBox="0 0 912 150" width="912" role="img" aria-label="front face">
@@ -336,7 +339,7 @@ reserves memory in 512 KiB pages when something is first written there. Untouche
 <text x="40" y="28" font-size="10.5" text-anchor="middle">RDY</text>
 <text class="idx" x="40" y="60" font-size="9" text-anchor="middle">32</text>
 </svg>
-<p>Each peg is drawn at its <code>x</code> position in the block's prefab, from <code>x</code> = 0 on the left. Small grey numbers are the peg indexes in the code. The top row of the back face is drawn on its own. RD is READ, WR WRITE, BY BYTE, WD WORD, DW DWORD, RDY DATA READY.</p>
+<p>Each peg is drawn at its <code>x</code> position in the block's prefab, from <code>x</code> = 0 on the left. Small grey numbers are the peg indexes in the code. The top row of the back face is drawn on its own. RD is READ, WR WRITE, BY BYTE, WD WORD, DW DWORD, RL RELOAD, RDY DATA READY.</p>
 </div>
 <table>
   <thead><tr><th>Pegs</th><th>Name</th><th>What it does</th></tr></thead>
@@ -346,11 +349,13 @@ reserves memory in 512 KiB pages when something is first written there. Untouche
     <tr><td class="num">in 64</td><td class="in">READ</td><td>High for one tick: a read of the address, with the size.</td></tr>
     <tr><td class="num">in 65</td><td class="in">WRITE</td><td>High for one tick: a write of the data to the address, with the size.</td></tr>
     <tr><td class="num">in 66–68</td><td class="in">BYTE, WORD, DWORD</td><td>The size: 1, 2 or 4 bytes. None high: 4.</td></tr>
+    <tr><td class="num">in 69</td><td class="in">RELOAD</td><td>Rising edge: load the editor's text again, its files read anew (below, "Contents").</td></tr>
     <tr><td class="num">out 0–31</td><td class="out">Q0–Q31</td><td>A read's value, little-endian, zero-extended to 32 bits: only in its data tick (below), all low otherwise.</td></tr>
     <tr><td class="num">out 32</td><td class="out">DATA READY</td><td>High for one tick, the tick after an access.</td></tr>
   </tbody>
 </table>
-<p class="muted">The control row is in the same order as the LW32 CPU block's READ, WRITE, BYTE, WORD, DWORD outputs.</p>
+<p class="muted">The control row is in the same order as the LW32 CPU block's READ, WRITE, BYTE, WORD, DWORD outputs.
+RELOAD, at the row's other end above A0 and D0, is not the CPU's: wire it to a button, or leave it unwired (low).</p>
 
 <h2>The bus handshake</h2>
 <p>The LW32 CPU block's bus (lw-compiler's <code>docs/cpu-block.md</code>), answered as fast as it allows:</p>
@@ -389,6 +394,10 @@ every 997 ticks, and at O1 every 7 (290,000 reloads, in the middle of accesses):
     (<code>@0x</code> takes up to 8 hex digits); <code>@file</code> works the same, so one file holds a whole program.</li>
   <li><b>What the world keeps:</b> the editor's text, if there is one (a reload starts from it again), else every page that isn't
     all zero, and the handshake's state.</li>
+  <li><b>RELOAD</b> (input 69, its rising edge) loads the editor's text again, as <b>Apply</b> does: <code>@file</code> reads the
+    files as they are now, so a program rebuilt on the PC is loaded without opening the editor. What the program wrote is gone, and
+    <b>Restore</b> then goes back to the new image. Stop the CPU (or hold it in reset) around the pulse. Without editor text, or
+    when a file is missing, the RAM keeps what it has and the server log says why.</li>
 </ul>
 </main>
 <footer>Eve's Components, a Logic World mod. These pages are in the mod's <code>docs/</code> folder.</footer>

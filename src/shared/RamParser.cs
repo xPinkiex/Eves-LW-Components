@@ -37,7 +37,8 @@ using System.Text;
 //   save. Absolute paths work too. The editor sends text with @file to the
 //   server unparsed and shows the server's answer. The file is read again on
 //   every Apply and every time the world loads (the world save keeps only
-//   the editor text), so after recompiling, press Apply or reload the world.
+//   the editor text), and on Eve's RAM (32-bit)'s RELOAD, so after
+//   recompiling, press Apply, pulse RELOAD or reload the world.
 //
 // The data length is the end of the highest byte written (or the final
 // current address, if that is higher), so the order of @0x blocks doesn't

@@ -14,10 +14,10 @@ Custom components for Logic World.
 - Source text is persisted in the world save
 
 ### Eve's Disk
-16 MB of storage on the LW32 CPU block's bus, with the pins and timing of Eve's RAM (32-bit), kept in a file: `disk.bin` in the save's `bins` folder (made if missing). Every write goes to the file in order; the world save keeps only the handshake, so the disk survives reloads and crashes and doesn't go back with an older save. No editor; one per world. Pins, wiring, the window (`0x90000000` on the LW32 `2g` map): [`docs/disk.html`](docs/disk.html).
+16 MB of storage on the LW32 CPU block's bus, with the pins and timing of Eve's RAM (32-bit), kept in a file: `disk.bin` in the save's `bins` folder (made if missing). Every write goes to the file in order; the world save keeps only the handshake, so the disk survives reloads and crashes and doesn't go back with an older save. No editor; one per world. A rising edge on RELOAD (input 69, above A0 and D0) reads the file again, for a `disk.bin` rebuilt while the world runs. Pins, wiring, the window (`0x90000000` on the LW32 `2g` map): [`docs/disk.html`](docs/disk.html).
 
 ### Eve's RAM (32-bit)
-Memory with a 32-bit byte address on the LW32 CPU block's bus: READ or WRITE for one tick with the size (BYTE, WORD, DWORD), DATA READY the next tick, a read's value the tick after (its data outputs are low otherwise). Backs 4 GiB sparsely (512 KiB pages on first write). Gate READ and WRITE with your address decoding. Pins, timing and wiring: [`docs/ram32.html`](docs/ram32.html).
+Memory with a 32-bit byte address on the LW32 CPU block's bus: READ or WRITE for one tick with the size (BYTE, WORD, DWORD), DATA READY the next tick, a read's value the tick after (its data outputs are low otherwise). Backs 4 GiB sparsely (512 KiB pages on first write). Gate READ and WRITE with your address decoding. A rising edge on RELOAD (input 69, above A0 and D0) loads the editor's text again, its `@file` files read anew. Pins, timing and wiring: [`docs/ram32.html`](docs/ram32.html).
 
 ### Eve's Microcode ROM
 32-bit microcode ROM with address-based dword read/write. Includes an in-game text editor.
@@ -95,7 +95,8 @@ and write in the editor:
 - After a file, loading continues right after its last byte. Everything else in the editor
   still counts.
 - The server reads the files, on **Apply** and again **every time the world loads**: the world
-  save keeps only the editor text. After recompiling, press Apply (or reload the world). The
+  save keeps only the editor text. Eve's RAM (32-bit) also reads them at each rising edge of its
+  RELOAD peg. After recompiling, press Apply, pulse RELOAD (or reload the world). The
   editor shows the server's answer (byte count or error). If a file is missing when the world
   loads, the block starts empty and the server log says why; the editor text is kept.
 - The save's `bins` folder travels with the save. If the server can't find the save (its log

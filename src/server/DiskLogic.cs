@@ -20,7 +20,13 @@ namespace EVE.Components.Server
     /// hard disk. One disk block per world: a second one logs an error, reads 0 and drops
     /// writes. A bigger file than 16 MiB is used up to 16 MiB; a smaller one is extended.
     ///
-    /// Inputs: 0-31 address, 32-63 write data, 64 READ, 65 WRITE, 66 BYTE, 67 WORD, 68 DWORD.
+    /// RELOAD's rising edge reads the file again: a disk.bin rebuilt on the PC while the world
+    /// runs (replaced or written over) takes effect without a reload of the world. What was
+    /// written before is flushed to the old file first. Stop the CPU before rebuilding the
+    /// file: a write between the rebuild and the reload would land in the new file.
+    ///
+    /// Inputs: 0-31 address, 32-63 write data, 64 READ, 65 WRITE, 66 BYTE, 67 WORD, 68 DWORD,
+    /// 69 RELOAD.
     /// Outputs: 0-31 data (only in a read's data tick), 32 DATA READY.
     /// </summary>
     public class DiskLogic : LogicComponent
@@ -28,13 +34,13 @@ namespace EVE.Components.Server
         public const int Size = 16 << 20;                      // 16 MiB
         public const string FileName = "disk.bin";
         public const int DataInBase = 32;
-        public const int Read = 64, Write = 65, Byte = 66, Word = 67, DWord = 68;   // inputs
+        public const int Read = 64, Write = 65, Byte = 66, Word = 67, DWord = 68, Reload = 69;   // inputs
         public const int DataOut = 0, Ready = 32;                                   // outputs
 
         private const int Idle = 0, ReadyThenData = 1, ReadyThenIdle = 2, DataThenIdle = 3;
         private int _phase;
         private uint _answer;
-        private bool _prevRead, _prevWrite;
+        private bool _prevRead, _prevWrite, _prevReload;
 
         private static readonly byte[] Magic = Encoding.ASCII.GetBytes("EVEDISK1\n");
 
@@ -142,6 +148,27 @@ namespace EVE.Components.Server
             }
         }
 
+        /// <summary>
+        /// RELOAD: closes the file and opens it again, so the next access reads what is in it
+        /// now (by its name: a file replaced by a new one is found too). Only the world's disk
+        /// does this; a second block stays silent.
+        /// </summary>
+        private void ReloadFile()
+        {
+            lock (Lock)
+            {
+                if (_owner != null && _owner != this) return;
+                Flush();
+                _file?.Dispose();
+                _file = null;
+                _data = null;
+                _failed = false;                       // a file that couldn't be opened gets another try
+                if (_owner == this) _owner = null;
+                RamServer.Logger?.Info("EVE_Components: Eve's Disk: RELOAD");
+                Open();                                // in the lock (it's reentrant): no other block
+            }                                          // takes the file meanwhile; logs what was read
+        }
+
         /// <summary>Hands what was written to the OS (in order; the game's crash can't lose it then).</summary>
         private void Flush()
         {
@@ -162,10 +189,12 @@ namespace EVE.Components.Server
 
         protected override void DoLogicUpdate()
         {
-            bool read = Inputs[Read].On, write = Inputs[Write].On;
+            bool read = Inputs[Read].On, write = Inputs[Write].On, reload = Inputs[Reload].On;
             bool newRead = read && !_prevRead, newWrite = write && !_prevWrite;
             _prevRead = read;
             _prevWrite = write;
+            if (reload && !_prevReload) ReloadFile();  // before an access of the same tick
+            _prevReload = reload;
 
             bool ready = false;
             uint data = 0;
@@ -208,7 +237,8 @@ namespace EVE.Components.Server
                 QueueLogicUpdate();
         }
 
-        // ---- persistence: "EVEDISK1\n" and the handshake; the contents are the file's ----
+        // ---- persistence: "EVEDISK1\n" and the handshake (phase, answer, the last READ, WRITE and
+        // RELOAD as bits 0-2); the contents are the file's ----
 
         protected override byte[] SerializeCustomData()
         {
@@ -217,7 +247,7 @@ namespace EVE.Components.Server
             Buffer.BlockCopy(Magic, 0, bytes, 0, Magic.Length);
             bytes[Magic.Length] = (byte)_phase;
             Buffer.BlockCopy(BitConverter.GetBytes(_answer), 0, bytes, Magic.Length + 1, 4);
-            bytes[Magic.Length + 5] = (byte)((_prevRead ? 1 : 0) | (_prevWrite ? 2 : 0));
+            bytes[Magic.Length + 5] = (byte)((_prevRead ? 1 : 0) | (_prevWrite ? 2 : 0) | (_prevReload ? 4 : 0));
             return bytes;
         }
 
@@ -225,7 +255,7 @@ namespace EVE.Components.Server
         {
             _phase = Idle;
             _answer = 0;
-            _prevRead = _prevWrite = false;
+            _prevRead = _prevWrite = _prevReload = false;
             if (data == null || data.Length < Magic.Length + 6) return;
             for (int i = 0; i < Magic.Length; i++)
                 if (data[i] != Magic[i]) return;
@@ -234,6 +264,7 @@ namespace EVE.Components.Server
             _answer = BitConverter.ToUInt32(data, pos + 1);
             _prevRead = (data[pos + 5] & 1) != 0;
             _prevWrite = (data[pos + 5] & 2) != 0;
+            _prevReload = (data[pos + 5] & 4) != 0;   // RELOAD held high across a save: no second reload
             QueueLogicUpdate();
         }
 

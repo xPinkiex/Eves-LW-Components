@@ -44,7 +44,8 @@ the order of the blocks doesn't matter.</p>
   <li><b>Paths:</b> relative ones are looked up in the save's <code>bins</code> folder, or in <code>Logic World/roms</code> if the
     server can't find the save. Absolute paths work too.</li>
   <li><b>When files are read:</b> on <b>Apply</b> and again every time the world loads, because the world keeps only the editor
-    text. After rebuilding a program, press Apply or reload the world. The editor shows the server's answer: the byte count, or
+    text, and on Eve's RAM (32-bit) at each rising edge of its RELOAD peg. After rebuilding a program, press Apply, pulse RELOAD
+    or reload the world. The editor shows the server's answer: the byte count, or
     an error.</li>
   <li><b>A missing file</b> leaves the block empty when the world loads. The server log says why, and the text is kept.</li>
   <li><b>How much a block takes:</b> Eve's RAM and the microcode ROM 64 KB, so one file fills at most one block; Eve's RAM

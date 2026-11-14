@@ -269,7 +269,8 @@ ProgramRAM32:
                 rotation: (-90, 0, 0)
                 length: 0.6
             # Row 3 (y=2.5): the bus's control, in the order of the LW32 CPU block's outputs:
-            # 64 READ at x=0, 65 WRITE at x=1, 66 BYTE at x=2, 67 WORD at x=3, 68 DWORD at x=4.
+            # 64 READ at x=0, 65 WRITE at x=1, 66 BYTE at x=2, 67 WORD at x=3, 68 DWORD at x=4,
+            # and 69 RELOAD at x=31 (not the CPU's).
             # READ or WRITE for one tick starts an access (docs/ram32.html)
             -
                 position: (0, 2.5, -0.5)
@@ -289,6 +290,11 @@ ProgramRAM32:
                 length: 0.6
             -
                 position: (4, 2.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.6
+            # 69 at x=31, above A0 and D0: RELOAD: its rising edge parses the editor's text again, @file read anew (docs/ram32.html)
+            -
+                position: (31, 2.5, -0.5)
                 rotation: (-90, 0, 0)
                 length: 0.6
         outputs:
