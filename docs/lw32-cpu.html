@@ -364,7 +364,7 @@ at the right (x = 31) and bit 31 at the left (x = 0), seen from the front.</p>
     DATA READY is the confirmation.</li>
   <li>The next access goes out the tick after the last one finished. An instruction's own work takes one tick: its
     last access finishing completes it, and the next instruction's fetch goes out the tick after.</li>
-  <li>Accesses as the CPU's microcode makes them: the instruction as a dword read at its address, its immediate (if any)
+  <li>Accesses as the CPU's microcode makes them: the instruction as a word read at its address (the opcode and the registers; a dword until 2026-11-14), its immediate (if any)
     as a byte, word or dword read at address + 2, then at most one data access. So the RAM modules and devices see what
     they see from the hardware CPU, and the same rules apply (an access across two RAM modules fails).</li>
 </ul>
